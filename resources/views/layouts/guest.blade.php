@@ -16,14 +16,15 @@
     <!-- 🎨 BODY: Full Putih Bersih Minimalis -->
     <body class="bg-white font-sans antialiased min-h-screen flex items-center justify-center">
         
-        <div class="w-full min-h-screen grid grid-cols-1 md:grid-cols-2 bg-white">
+        <!-- 📝 UPDATE MOBILE: Ditambahkan 'flex flex-col md:grid' agar di HP posisinya ngalir ke bawah dengan rapi -->
+        <div class="w-full min-h-screen flex flex-col md:grid md:grid-cols-2 bg-white">
             
             <!-- ========================================================================= -->
-            <!-- SISI KIRI: PANEL VISUAL BRAND PT MILI (SUPER COMPACT & INTEGRATED)        -->
+            <!-- SISI KIRI: PANEL VISUAL BRAND PT MILI (DESKTOP ONLY)                      -->
             <!-- ========================================================================= -->
-            <div class="hidden md:flex flex-col justify-center p-24 bg-white border-r border-slate-50 min-h-screen">
+            <div class="hidden md:flex flex-col justify-center p-24 bg-white min-h-screen relative">
                 
-                <!-- 🛠️ BLOK UTAMA COMPACT: Mengikat erat seluruh elemen termasuk footer agar tidak karapan bawah -->
+                <!-- 🛠️ BLOK IKATAN KONTEN: Mengikat semua elemen biar tetep rapat, tapi posisinya pas di tengah layar -->
                 <div class="w-full max-w-xl space-y-6 select-none">
                     
                     <!-- 1. BADGE INTERNAL PORTAL: Jarak rapat ke bawah -->
@@ -51,28 +52,24 @@
                             Sistem Informasi Manajemen Data Peserta dan Dashboard Penilaian Terintegrasi.
                         </p>
                     </div>
-
-                    <!-- 4. FOOTER BRANDING: Sekarang menyatu rapat di bawah deskripsi, tidak memencar ke dasar layar -->
-                    <div class="text-[11px] text-[#22a0f6]/70 font-mono tracking-wide leading-relaxed pt-6 border-t border-slate-100/60 w-full max-w-sm">
-                        &copy; 2026 PT Mili Talenta Inspirasi. <br>
-                        <span class="text-[#22a0f6] font-black">Made by Politeknik Mitra Industri</span>
-                    </div>
                     
                 </div>
 
+                <!-- FOOTER COMPANY CONTENT: Tetap mengunci rapi di bawah area kiri -->
+                <div class="absolute bottom-8 left-24 text-[11px] text-[#22a0f6]/70 font-mono tracking-wide leading-relaxed select-none">
+                    &copy; 2026 PT Mili Talenta Inspirasi. <br>
+                    <span class="text-[#22a0f6] font-black">Made by Politeknik Mitra Industri</span>
+                </div>
             </div>
 
             <!-- ========================================================================= -->
-            <!-- SISI KANAN: TEMPAT CONTAINER FORM LOGIN / REGISTER MUNCUL                 -->
+            <!-- SISI KANAN: CONTAINER FORM LOGIN & REGISTER + LOGO MOBILE EMERGENCY       -->
             <!-- ========================================================================= -->
-            <!-- 📝 NOTED PERUBAHAN DI SINI:
-                 - Menambahkan 'flex-col' agar ketika di HP, elemen logo mobile (atas) dan card form (bawah) tersusun rapi berurutan ke bawah. -->
-            <div class="flex flex-col items-center justify-center p-6 sm:p-12 bg-white">
+            <!-- 📝 UPDATE MOBILE: Ditambahkan 'justify-center py-12 md:py-6' biar di HP gak mentok atas-bawah -->
+            <div class="flex flex-col items-center justify-center p-6 sm:p-12 bg-white flex-1 min-h-screen md:min-h-0">
                 
-                <!-- 📝 NOTED PERUBAHAN DI SINI:
-                     - Menambahkan blok LOGO MOBILE EMERGENCY dengan kelas 'md:hidden'.
-                     - Blok ini hanya akan dirender dan kelihatan saat dibuka di layar smartphone/tablet agar identitas aplikasi PT Mili tetap jelas terlihat oleh pengguna mobile. -->
-                <div class="flex md:hidden flex-col items-center gap-3 mb-8 text-center select-none">
+                <!-- 🚀 LOGO MOBILE EMERGENCY: Hanya muncul di HP (md:hidden), posisi center manis -->
+                <div class="flex md:hidden flex-col items-center gap-3 mb-8 text-center select-none pt-4">
                     <img src="{{ asset('images/logo-mili.jpg') }}" alt="Logo PT Mili" class="h-14 w-14 object-contain">
                     <h2 class="text-xl font-black text-[#22a0f6]" style="font-family: 'Raleway', sans-serif;">PT. Mili Talenta Inspirasi</h2>
                     <span class="text-[9px] font-black tracking-[0.15em] bg-[#22a0f6] text-white px-2 py-1 rounded font-mono">INTERNAL PORTAL</span>
@@ -81,6 +78,12 @@
                 <!-- CARD FORM: Background putih dengan shadow halus premium -->
                 <div class="w-full max-w-sm bg-white p-10 rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.05)] border border-slate-100 transition-all">
                     {{ $slot }}
+                </div>
+                
+                <!-- 🚀 FOOTER KHUSUS MOBILE: Biar pas di HP hak ciptanya tetep keliatan di paling bawah -->
+                <div class="block md:hidden text-center text-[10px] text-slate-400 font-mono mt-8 select-none">
+                    &copy; 2026 PT Mili Talenta Inspirasi. <br>
+                    <span class="text-slate-500 font-bold">Made by Politeknik Mitra Industri</span>
                 </div>
             </div>
 
