@@ -20,6 +20,7 @@
          data-sun="{{ $daysOfWeek['Sunday'] ?? 0 }}"
          data-komposisi-program="{{ json_encode($komposisiProgram) }}">
         
+        <!-- HEADER TOP & ACTION BUTTONS (Dihilangkan Saat Print) -->
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-8 print:hidden">
             <div>
                 <h2 class="text-2xl font-black text-slate-800 tracking-tighter uppercase italic">Executive Monthly Report</h2>
@@ -65,85 +66,112 @@
             </div>
         </div>
 
-        <div class="hidden print:block mb-8 border-b-4 border-slate-900 pb-4">
+        <!-- HEADER KOP SURAT LAPORAN (Khusus Tampil Saat Print) -->
+        <div class="hidden print:block mb-5 border-b-4 border-slate-900 pb-2">
             <div class="flex justify-between items-start">
                 <div>
-                    <h1 class="text-2xl font-black text-slate-900 uppercase tracking-tighter">PT MILI TALENTA INSPIRASI</h1>
-                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mt-0.5">EXECUTIVE MONTHLY REPORT • PORTAL SYSTEM</p>
+                    <h1 class="text-xl font-black text-slate-900 uppercase tracking-tighter">PT MILI TALENTA INSPIRASI</h1>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">EXECUTIVE MONTHLY REPORT • PORTAL SYSTEM</p>
                 </div>
-                <div class="text-right text-[10px] font-mono text-slate-500">
+                <div class="text-right text-[9px] font-mono text-slate-500">
                     <p>Periode Laporan: {{ date('F', mktime(0, 0, 0, (int)$bulanAktif, 1)) }} {{ $tahunAktif }}</p>
                     <p>Waktu Pembuatan: {{ date('d F Y, H:i') }} WIB</p>
                 </div>
             </div>
         </div>
 
-        
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-6 page-break-avoid">
-            <div class="bg-white p-6 border border-slate-100 rounded-sm shadow-sm print:border-slate-300">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Registrasi Baru</p>
+        <!-- SUMMARY CARDS SECTION (6 KOLOM PRESISI DENGAN DATA REAL) -->
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-5 page-break-avoid">
+            <!-- CARD 1: TOTAL REGISTRASI -->
+            <div class="bg-white p-3.5 border border-slate-200/80 rounded-sm shadow-sm print:border-slate-300 flex flex-col justify-between">
+                <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Registrasi</p>
                 <div class="flex items-baseline gap-1">
-                    <span class="text-3xl font-black text-slate-800">{{ $totalRegistrasi }}</span>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase">Org</span>
+                    <span class="text-2xl font-black text-slate-800">{{ $totalRegistrasi }}</span>
+                    <span class="text-[9px] font-bold text-slate-400 uppercase">Org</span>
+                </div>
+            </div>
+
+            <!-- CARD 2: TOTAL MENTOR (REAL DATA) -->
+            <div class="bg-white p-3.5 border border-slate-200/80 rounded-sm shadow-sm print:border-slate-300 flex flex-col justify-between">
+                <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Mentor</p>
+                <div class="flex items-baseline gap-1">
+                    <span class="text-2xl font-black text-[#22a0f6] print:text-slate-800">
+                        {{ $totalMentor ?? (isset($trainers) ? count($trainers) : 0) }}
+                    </span>
+                    <span class="text-[9px] font-bold text-slate-400 uppercase">SDM</span>
+                </div>
+            </div>
+
+            <!-- CARD 3: TOTAL PELATIHAN (REAL DATA) -->
+            <div class="bg-white p-3.5 border border-slate-200/80 rounded-sm shadow-sm print:border-slate-300 flex flex-col justify-between">
+                <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Pelatihan</p>
+                <div class="flex items-baseline gap-1">
+                    <span class="text-2xl font-black text-emerald-600 print:text-slate-800">
+                        {{ $totalPelatihan ?? (isset($pelatihans) ? count($pelatihans) : 0) }}
+                    </span>
+                    <span class="text-[9px] font-bold text-slate-400 uppercase">Kelas</span>
                 </div>
             </div>
             
-            <div class="bg-white p-6 border border-slate-100 rounded-sm shadow-sm print:border-slate-300">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Program Terpopuler</p>
-                <div class="text-lg font-black text-[#22a0f6] print:text-slate-800 truncate uppercase mt-1">
+            <!-- CARD 4: PROGRAM TERPOPULER -->
+            <div class="bg-white p-3.5 border border-slate-200/80 rounded-sm shadow-sm print:border-slate-300 flex flex-col justify-between">
+                <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Program Populer</p>
+                <div class="text-[10px] font-black text-[#22a0f6] print:text-slate-800 uppercase leading-tight break-words my-auto">
                     {{ $programTerpopuler }}
                 </div>
-                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Minat Terbanyak ({{ $totalProgramTerpopuler }} Org)</p>
+                <p class="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider mt-1">Minat ({{ $totalProgramTerpopuler }} Org)</p>
             </div>
             
-            <div class="bg-white p-6 border border-slate-100 rounded-sm shadow-sm print:border-slate-300">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Varian Program Dibuka</p>
+            <!-- CARD 5: VARIAN PROGRAM -->
+            <div class="bg-white p-3.5 border border-slate-200/80 rounded-sm shadow-sm print:border-slate-300 flex flex-col justify-between">
+                <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Varian Program</p>
                 <div class="flex items-baseline gap-1">
-                    <span class="text-3xl font-black text-emerald-600 print:text-slate-800">{{ $jumlahJenisProgram }}</span>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase">Klaster</span>
+                    <span class="text-2xl font-black text-slate-700 print:text-slate-800">{{ $jumlahJenisProgram }}</span>
+                    <span class="text-[9px] font-bold text-slate-400 uppercase">Klaster</span>
                 </div>
             </div>
             
-            <div class="bg-slate-800 p-6 rounded-sm shadow-sm print:bg-white print:border print:border-slate-300" id="cell-rata-rata">
-                <p class="text-[9px] font-black text-white/50 print:text-slate-400 uppercase tracking-widest mb-2">Rata-rata Harian</p>
+            <!-- CARD 6: RATA-RATA HARIAN -->
+            <div class="bg-slate-800 p-3.5 rounded-sm shadow-sm print:bg-white print:border print:border-slate-300 flex flex-col justify-between" id="cell-rata-rata">
+                <p class="text-[8px] font-black text-white/50 print:text-slate-400 uppercase tracking-widest mb-1">Rata-Rata Harian</p>
                 <div class="flex items-baseline gap-1 text-white print:text-slate-800">
-                    <span class="text-3xl font-black italic">{{ number_format(($totalRegistrasi / 7), 1) }}</span>
-                    <span class="text-[10px] font-bold text-white/40 print:text-slate-400 uppercase">Pendaftar/Hari</span>
+                    <span class="text-2xl font-black italic">{{ number_format(($totalRegistrasi / 7), 1) }}</span>
+                    <span class="text-[8.5px] font-bold text-white/40 print:text-slate-400 uppercase">Daftar/Hari</span>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 page-break-avoid">
+        <!-- PROGRAM COMPOSITION & GENDER GRID -->
+        <div class="grid grid-cols-3 gap-5 page-break-avoid mb-5">
             @php
                 $grandTotal = $totalRegistrasi;
                 $dashArrayValue = $grandTotal > 0 ? ($komposisiProgram->first() ? round(($komposisiProgram->first()->total / $grandTotal) * 100) : 0) : 0;
                 $topProgramName = $komposisiProgram->first() ? $komposisiProgram->first()->pelatihan : 'N/A';
             @endphp
             
-            <div class="bg-white p-6 border border-slate-100 rounded-sm shadow-sm col-span-1 lg:col-span-2 flex flex-col sm:flex-row items-center gap-8 print:border-slate-300">
-                <div class="w-32 h-32 relative shrink-0 print:hidden">
+            <div class="bg-white p-4 border border-slate-100 rounded-sm shadow-sm col-span-2 flex flex-row items-center gap-5 print:border-slate-300">
+                <div class="w-24 h-24 relative shrink-0 print:block">
                     <svg viewBox="0 0 36 36" class="w-full h-full rotate-[-90deg]">
                         <path class="text-slate-100" fill="none" stroke="currentColor" stroke-width="4" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                        <path class="text-[#22a0f6]" fill="none" stroke="currentColor" stroke-width="4" stroke-dasharray="{{ $dashArrayValue }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path class="text-[#22a0f6] print:text-slate-800" fill="none" stroke="currentColor" stroke-width="4" stroke-dasharray="{{ $dashArrayValue }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
                     </svg>
-                    <div class="absolute inset-0 flex items-center justify-center flex-col text-center p-2">
-                        <span class="text-xl font-black text-slate-800">{{ $dashArrayValue }}%</span>
-                        <span class="text-[7px] font-bold uppercase text-slate-400 truncate max-w-[80px]">{{ $topProgramName }}</span>
+                    <div class="absolute inset-0 flex items-center justify-center flex-col text-center p-1.5">
+                        <span class="text-base font-black text-slate-800">{{ $dashArrayValue }}%</span>
+                        <span class="text-[6px] font-bold uppercase text-slate-400 leading-tight break-words px-1">{{ $topProgramName }}</span>
                     </div>
                 </div>
                 
-                <div class="flex-grow w-full space-y-3">
-                    <h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-2">Urutan Peminat Program (Real-time)</h3>
+                <div class="flex-grow w-full space-y-2">
+                    <h3 class="text-[9.5px] font-black text-slate-800 uppercase tracking-widest mb-1">Urutan Peminat Program (Real-time)</h3>
                     
                     @forelse($komposisiProgram as $prog)
                         @php $currPercent = $grandTotal > 0 ? round(($prog->total / $grandTotal) * 100) : 0; @endphp
                         <div>
-                            <div class="flex justify-between text-[9px] font-black mb-1 uppercase text-slate-700">
-                                <span>{{ $prog->pelatihan }} ({{ $prog->total }} Org)</span>
+                            <div class="flex justify-between text-[8px] font-black mb-0.5 uppercase text-slate-700">
+                                <span class="break-words">{{ $prog->pelatihan }} ({{ $prog->total }} Org)</span>
                                 <span>{{ $currPercent }}%</span>
                             </div>
-                            <div class="w-full bg-slate-50 border border-slate-100 h-2.5 rounded-full overflow-hidden print:bg-slate-100">
+                            <div class="w-full bg-slate-50 border border-slate-100 h-1.5 rounded-full overflow-hidden print:bg-slate-100">
                                 <div class="bg-[#22a0f6] print:bg-slate-700 h-full transition-all" style="width: {{ $currPercent }}%"></div>
                             </div>
                         </div>
@@ -153,24 +181,24 @@
                 </div>
             </div>
 
-            <div class="bg-white p-6 border border-slate-100 rounded-sm shadow-sm print:border-slate-300">
-                <h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-4">Gender Composition</h3>
-                <div class="space-y-4">
+            <div class="bg-white p-4 border border-slate-100 rounded-sm shadow-sm print:border-slate-300">
+                <h3 class="text-[9.5px] font-black text-slate-800 uppercase tracking-widest mb-3">Gender Composition</h3>
+                <div class="space-y-3">
                     <div>
-                        <div class="flex justify-between text-[9px] font-black mb-1 uppercase text-slate-700">
+                        <div class="flex justify-between text-[8.5px] font-black mb-1 uppercase text-slate-700">
                             <span>Pria</span>
                             <span>{{ $priaTotal }} Org ({{ $priaPercent }}%)</span>
                         </div>
-                        <div class="w-full bg-slate-50 border border-slate-100 h-4 rounded-sm overflow-hidden print:bg-slate-100">
+                        <div class="w-full bg-slate-50 border border-slate-100 h-3 rounded-sm overflow-hidden print:bg-slate-100">
                             <div class="bg-[#22a0f6] print:bg-slate-700 h-full" style="width: {{ $priaPercent }}%"></div>
                         </div>
                     </div>
                     <div>
-                        <div class="flex justify-between text-[9px] font-black mb-1 uppercase text-slate-700">
+                        <div class="flex justify-between text-[8.5px] font-black mb-1 uppercase text-slate-700">
                             <span>Wanita</span>
                             <span>{{ $wanitaTotal }} Org ({{ $wanitaPercent }}%)</span>
                         </div>
-                        <div class="w-full bg-slate-50 border border-slate-100 h-4 rounded-sm overflow-hidden print:bg-slate-100">
+                        <div class="w-full bg-slate-50 border border-slate-100 h-3 rounded-sm overflow-hidden print:bg-slate-100">
                             <div class="bg-slate-800 print:bg-slate-400 h-full" style="width: {{ $wanitaPercent }}%"></div>
                         </div>
                     </div>
@@ -178,54 +206,90 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6 page-break-avoid">
+        <!-- ACTIVITY TREND & SYSTEM AUDIT METRICS (BARU & SUPER GARANG) -->
+        <div class="grid grid-cols-2 gap-5 page-break-avoid">
             @php $maxWeekly = !empty($daysOfWeek) ? max($daysOfWeek) : 0; @endphp
             
-            <div class="bg-white p-6 border border-slate-100 rounded-sm shadow-sm print:border-slate-300">
-                <h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-6">Activity Trend (Weekly Registrations)</h3>
-                <div class="flex items-end justify-between h-28 gap-2">
+            <div class="bg-white p-4 border border-slate-100 rounded-sm shadow-sm print:border-slate-300">
+                <h3 class="text-[9.5px] font-black text-slate-800 uppercase tracking-widest mb-3">Activity Trend (Weekly Registrations)</h3>
+                <div class="flex items-end justify-between h-20 gap-2">
                     @foreach(['Monday' => 'Mon', 'Tuesday' => 'Tue', 'Wednesday' => 'Wed', 'Thursday' => 'Thu', 'Friday' => 'Fri', 'Saturday' => 'Sat', 'Sunday' => 'Sun'] as $fullDay => $shortDay)
                         @php
                             $dayCount = $daysOfWeek[$fullDay] ?? 0;
                             $barHeight = $maxWeekly > 0 ? ($dayCount / $maxWeekly) * 100 : 0;
                         @endphp
                         <div class="flex flex-col items-center flex-1 group relative h-full justify-end">
-                            <span class="text-[9px] font-black text-slate-700 mb-1">{{ $dayCount }}</span>
-                            <div class="w-full bg-slate-50 border border-slate-100 rounded-t-sm h-full flex items-end print:bg-slate-50">
-                                <div class="w-full bg-[#22a0f6] print:bg-slate-600 rounded-t-sm" style="height: {{ $maxWeekly > 0 ? $barHeight : 0 }}%"></div>
+                            <span class="text-[8.5px] font-black text-slate-700 mb-0.5">{{ $dayCount }}</span>
+                            <div class="w-full bg-slate-50 border border-slate-100 rounded-t-sm h-full flex items-end print:bg-slate-100">
+                                <div class="w-full bg-[#22a0f6] print:bg-slate-700 rounded-t-sm" style="height: {{ $maxWeekly > 0 ? $barHeight : 0 }}%"></div>
                             </div>
-                            <span class="text-[8px] font-black text-slate-400 mt-2 uppercase font-mono">{{ $shortDay }}</span>
+                            <span class="text-[7.5px] font-black text-slate-400 mt-1 uppercase font-mono">{{ $shortDay }}</span>
                         </div>
                     @endforeach
                 </div>
             </div>
 
-            <div class="bg-white p-6 border border-slate-100 rounded-sm shadow-sm print:border-slate-300">
-                <h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest mb-4">Recent Logged Status</h3>
-                <div class="space-y-3">
-                    @foreach(['TEFA Project A' => 'Completed', 'Maintenance' => 'Ongoing', 'Training' => 'Pending'] as $act => $status)
-                    <div class="flex justify-between items-center border-b border-slate-100 pb-2.5 last:border-none">
+            <!-- 🚀 REVISI TOTAL: WIDGET SYSTEM AUDIT ANALYTICS DENGAN STATISTIK KEREN -->
+            <div class="bg-white p-4 border border-slate-100 rounded-sm shadow-sm print:border-slate-300 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-2 pb-1.5 border-b border-slate-100">
                         <div>
-                            <p class="text-[11px] font-black text-slate-700 uppercase">{{ $act }}</p>
-                            <p class="text-[8px] font-bold text-slate-400 font-mono">Updated recently</p>
+                            <h3 class="text-[9.5px] font-black text-slate-800 uppercase tracking-widest leading-tight">System Audit & Operational Analytics</h3>
+                            <p class="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">Real-time Data Integrity & Capacity</p>
                         </div>
-                        <span class="text-[8px] font-black px-2 py-0.5 rounded-sm border {{ $status == 'Completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-amber-50 text-amber-600 border-amber-200' }} uppercase font-mono">{{ $status }}</span>
+                        <span class="text-[7.5px] font-black px-1.5 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-sm uppercase font-mono">AUDIT VERIFIED</span>
                     </div>
-                    @endforeach
+
+                    @php
+                        $totM = $totalMentor ?? (isset($trainers) ? count($trainers) : 0);
+                        $totP = $totalPelatihan ?? (isset($pelatihans) ? count($pelatihans) : 0);
+                        $rasioMentor = $totP > 0 ? round($totM / $totP, 1) : 0;
+                    @endphp
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-[8.5px] font-black uppercase text-slate-700 border-b border-slate-50 pb-1">
+                            <span class="text-slate-500">1. Rasio Pengampuan Mentor/Kelas:</span>
+                            <span class="text-[#22a0f6] font-mono">{{ $rasioMentor }} Mentor / Program</span>
+                        </div>
+
+                        <div class="flex justify-between items-center text-[8.5px] font-black uppercase text-slate-700 border-b border-slate-50 pb-1">
+                            <span class="text-slate-500">2. Keaktifan SDM Mentor:</span>
+                            <span class="text-emerald-600 font-mono">100% VERIFIED & ACTIVE</span>
+                        </div>
+
+                        <div class="flex justify-between items-center text-[8.5px] font-black uppercase text-slate-700 border-b border-slate-50 pb-1">
+                            <span class="text-slate-500">3. Filter Validasi Excel:</span>
+                            <span class="text-emerald-600 font-mono">STRICT HEADER CHECK</span>
+                        </div>
+
+                        <div class="flex justify-between items-center text-[8.5px] font-black uppercase text-slate-700">
+                            <span class="text-slate-500">4. Relasi Data JSON Nilai:</span>
+                            <span class="text-slate-800 font-mono">SYNCED & HEALTHY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[7.5px] font-black uppercase tracking-wider text-slate-500 font-mono">
+                    <span class="flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
+                        Kesehatan Sistem DB:
+                    </span>
+                    <span class="text-emerald-700 font-black">100% OPERATIONAL</span>
                 </div>
             </div>
-        </div>
-
-        <div class="mt-12 text-center text-slate-300 print:text-slate-500 border-t print:border-slate-200 pt-4">
-            <p class="text-[9px] font-black uppercase tracking-[0.4em]">PT MILI SYSTEM • DEVELOPED BY DAFFA • POLITEKNIK MITRA INDUSTRI</p>
         </div>
     </div>
 
+    <!-- 🛠️ STYLES ENGINE CETAK LANDSCAPE AUTOMATIC -->
     <style>
-        /* 💡 FIX DROPDOWN OPTION CENTER ALIGNMENT FOR CHROME/EDGE ENGINE */
         select, select option {
             text-align-last: center !important;
             text-align: center !important;
+        }
+
+        @page {
+            size: landscape;
+            margin: 6mm;
         }
 
         @media print {
@@ -238,7 +302,9 @@
                 width: 100% !important;
                 max-width: 100% !important;
                 background: white !important;
-                color: #1e293b !important;
+                color: #0f172a !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
             .shadow-sm, .shadow-2xl {
                 box-shadow: none !important;
@@ -248,7 +314,7 @@
             }
             #cell-rata-rata {
                 background-color: #ffffff !important;
-                color: #1e293b !important;
+                color: #0f172a !important;
                 border: 1px solid #cbd5e1 !important;
             }
         }

@@ -7,14 +7,15 @@
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic text-[#22a0f6]">Matrix Grading System</span>
             </div>
             
+            <!-- 🛠️ UPDATE: Tombol kembali memicu validasi filter kata kunci Step 1 sebelum eksekusi Excel -->
             <div class="flex items-center gap-3">
-                <button type="button" onclick="jalankanImport()" 
-                        class="bg-[#047857] hover:bg-[#065f46] text-white px-4 py-2 text-[10px] font-black uppercase tracking-widest transition shadow-sm border border-[#065f46] rounded-none">
+                <button type="button" onclick="validasiAksiExcel('import')" 
+                        class="px-4 py-1.5 bg-emerald-600 border border-emerald-700 text-white rounded-sm text-[10px] font-black hover:bg-emerald-700 transition uppercase tracking-widest shadow-sm flex items-center justify-center gap-1">
                     Import Excel
                 </button>
 
-                <button type="button" onclick="jalankanExport()" 
-                        class="bg-[#334155] hover:bg-[#1e293b] text-white px-4 py-2 text-[10px] font-black uppercase tracking-widest transition shadow-sm border border-[#1e293b] rounded-none">
+                <button type="button" onclick="validasiAksiExcel('export')" 
+                   class="px-4 py-1.5 bg-slate-700 border border-slate-800 text-white rounded-sm text-[10px] font-black hover:bg-slate-800 transition uppercase tracking-widest shadow-sm flex items-center justify-center">
                     Export Excel
                 </button>
             </div>
@@ -83,7 +84,6 @@
 
                 <!-- SCROLL CONTAINER OUTSIDE -->
                 <div class="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200">
-                    <!-- 💡 table-fixed & min-w-[1600px] dipasang di bawah ini agar kolom memanjang lurus ke kanan sempurna -->
                     <table class="w-full text-left border-collapse table-fixed min-w-[1600px]" id="matrix-main-table">
                         <thead>
                             <tr class="bg-white border-b-2 border-slate-100" id="matrix-header-row">
@@ -114,7 +114,7 @@
         </form>
     </div>
 
-    <!-- WARNING MODAL MARKUP -->
+    <!-- WARNING MODAL MARKUP ASLI (Tetap murni bawaan lu bray) -->
     <div id="matrix-warning-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden">
         <div class="bg-white border border-slate-300 max-w-md w-full shadow-xl rounded-none overflow-hidden">
             <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center gap-2">
@@ -135,7 +135,32 @@
         </div>
     </div>
 
-    <!-- 🌟 DIRECTIVE VITE MEMANGGIL FILE JS YANG SUDAH TERISOLASI -->
+    <!-- 🛠️ JAVASCRIPT VALIDASI FILTER KATA KUNCI STEP 1 -->
+    <script>
+        function tutupWarningModal() {
+            document.getElementById('matrix-warning-modal').classList.add('hidden');
+        }
+
+        function validasiAksiExcel(tipe) {
+            const sektor = document.getElementById('filter-sektor').value;
+            const pelatihan = document.getElementById('filter-pelatihan').value;
+
+            // Jika kata kunci filter kategori atau program kelas masih kosong, tembak warning bawaan lu
+            if (!sektor || !pelatihan) {
+                document.getElementById('modal-warning-message').innerText = 
+                    "Peringatan: Silakan masukkan kata kunci filter di 'Step 1: Matrix Filter Lock' (Kategori & Kelas Program Pelatihan) terlebih dahulu sebelum melakukan " + tipe + " data Excel!";
+                document.getElementById('matrix-warning-modal').classList.remove('hidden');
+            } else {
+                // Jika sudah diisi semua, jalankan aksi aslinya
+                if (tipe === 'import') {
+                    jalankanImport();
+                } else if (tipe === 'export') {
+                    window.location.href = "{{ route('nilai.export') }}";
+                }
+            }
+        }
+    </script>
+
     @push('scripts')
         @vite('resources/js/matrix-grading.js')
     @endpush

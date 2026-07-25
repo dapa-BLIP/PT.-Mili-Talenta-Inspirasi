@@ -1,3 +1,4 @@
+<!-- resources/views/academic/index.blade.php -->
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between w-full h-full print:hidden select-none">
@@ -33,23 +34,59 @@
          x-data="{ currentTab: '{{ session('active_tab', 'pelatihan') }}' }" 
          @change-academic-tab.window="currentTab = $event.detail; document.getElementById('academic-search-bar').value=''; jalankanLiveSearch();">
         
-        @if(session('success'))
-            <div class="mb-4 px-4 py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-black uppercase tracking-wide flex justify-between items-center shadow-sm select-none rounded-none">
-                <span>✅ {{ session('success') }}</span>
-                <button type="button" class="font-bold text-sm leading-none" onclick="this.parentElement.remove()">&times;</button>
-            </div>
-        @endif
+        <!-- ALERT SYSTEM + GLOBAL VALIDATION ERRORS DIAGNOSTICS -->
+        <div id="global-alert-container" class="relative z-10 select-none print:hidden transition-all duration-300">
+            @if(session('success'))
+                <div class="mb-4 px-4 py-3 bg-white border-l-4 border-l-emerald-500 border-y border-r border-slate-200 shadow-md flex items-center justify-between transition-all rounded-r-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="p-1 bg-emerald-50 rounded-full text-emerald-600 shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <div class="space-y-0.5">
+                            <h4 class="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Berhasil</h4>
+                            <p class="text-[11px] font-bold text-slate-600 tracking-wide">{{ session('success') }}</p>
+                        </div>
+                    </div>
+                    <button type="button" class="text-slate-400 hover:text-slate-600 font-black text-lg p-1" onclick="this.parentElement.remove()">&times;</button>
+                </div>
+            @endif
 
+        @if ($errors->any())
+    <div class="mb-4 px-4 py-3 bg-white border-l-4 border-l-rose-500 border-y border-r border-slate-200 shadow-md flex items-center justify-between transition-all rounded-r-sm">
+        <div class="flex items-center gap-3">
+            <!-- 🔴 Icon Bulat Rose Minimalis (Sejajar flex-items-center) -->
+            <div class="p-1 bg-rose-50 rounded-full text-rose-600 shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            
+            <div class="space-y-0.5">
+                <h4 class="text-[10px] font-black text-rose-800 uppercase tracking-widest">Gagal Memproses Data</h4>
+                <div class="text-[11px] font-bold text-slate-600 tracking-wide uppercase">
+                    @if($errors->has('import_error'))
+                        <p>{{ $errors->first('import_error') }}</p>
+                    @else
+                        @foreach ($errors->all() as $error)
+                            <p>* {{ $error }}</p>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+        </div>
+        
+        <!-- ❌ Tombol Silang Close Manual (Biar sama persis fungsinya) -->
+        <button type="button" class="text-slate-400 hover:text-slate-600 font-black text-lg p-1 leading-none focus:outline-none" onclick="this.parentElement.remove()">&times;</button>
+    </div>
+@endif
+        </div>
+
+        <!-- FILTER BAR & SEARCH ENGINE -->
         <div class="bg-white border border-slate-200 py-3 px-4 mb-4 shadow-sm rounded-none">
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                
                 <div class="shrink-0 min-w-[200px] flex items-center">
-                    <h3 x-show="currentTab === 'pelatihan'" class="text-[11px] font-black text-slate-700 uppercase tracking-widest">
-                        Repositori Kelas Pelatihan
-                    </h3>
-                    <h3 x-show="currentTab === 'mentor'" class="text-[11px] font-black text-slate-700 uppercase tracking-widest" x-cloak>
-                        Database Master Mentor
-                    </h3>
+                    <h3 x-show="currentTab === 'pelatihan'" class="text-[11px] font-black text-slate-700 uppercase tracking-widest">Repositori Kelas Pelatihan</h3>
+                    <h3 x-show="currentTab === 'mentor'" class="text-[11px] font-black text-slate-700 uppercase tracking-widest" x-cloak>Database Master Mentor</h3>
                 </div>
 
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 justify-end md:flex-1">
@@ -57,47 +94,27 @@
                         <span class="absolute inset-y-0 left-0 flex items-center pl-2.5 pointer-events-none">
                             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </span>
-                        <input type="text" 
-                               id="academic-search-bar"
-                               onkeyup="jalankanLiveSearch()"
-                               placeholder="Ketik kata kunci..." 
-                               class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-700 rounded-none focus:outline-none focus:border-[#22a0f6] focus:bg-white placeholder-slate-400 shadow-inner">
+                        <input type="text" id="academic-search-bar" onkeyup="jalankanLiveSearch()" placeholder="Ketik kata kunci..." class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-700 rounded-none focus:outline-none focus:border-[#22a0f6] focus:bg-white placeholder-slate-400 shadow-inner">
                     </div>
 
+                    <!-- Button Tab Pelatihan -->
                     <div x-show="currentTab === 'pelatihan'" class="flex flex-wrap items-center gap-2">
-                        <button type="button" onclick="document.getElementById('modalImportPelatihan').classList.remove('hidden')" 
-                                class="px-4 py-1.5 bg-emerald-600 border border-emerald-700 text-white rounded-sm text-[10px] font-black hover:bg-emerald-700 transition uppercase tracking-widest shadow-sm flex items-center justify-center gap-1 cursor-pointer">
-                            Import Excel
-                        </button>
-                        <a href="{{ route('academic.exportPelatihan') }}" 
-                           class="px-4 py-1.5 bg-slate-700 border border-slate-800 text-white rounded-sm text-[10px] font-black hover:bg-slate-800 transition uppercase tracking-widest shadow-sm flex items-center justify-center">
-                            Export Excel
-                        </a>
-                        <button type="button" onclick="document.getElementById('modalCreatePelatihan').classList.remove('hidden')" 
-                                class="px-4 py-1.5 bg-[#22a0f6] text-white rounded-sm text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition shadow-md cursor-pointer border-none">
-                            + Add New Entry
-                        </button>
+                        <button type="button" onclick="document.getElementById('modalImportPelatihan').classList.remove('hidden')" class="px-4 py-1.5 bg-emerald-600 border border-emerald-700 text-white rounded-sm text-[10px] font-black hover:bg-emerald-700 transition uppercase tracking-widest shadow-sm flex items-center justify-center gap-1 cursor-pointer">Import Excel</button>
+                        <a href="{{ route('academic.exportPelatihan') }}" class="px-4 py-1.5 bg-slate-700 border border-slate-800 text-white rounded-sm text-[10px] font-black hover:bg-slate-800 transition uppercase tracking-widest shadow-sm flex items-center justify-center">Export Excel</a>
+                        <button type="button" onclick="document.getElementById('modalCreatePelatihan').classList.remove('hidden')" class="px-4 py-1.5 bg-[#22a0f6] text-white rounded-sm text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition shadow-md cursor-pointer border-none">+ Add New Entry</button>
                     </div>
 
+                    <!-- Button Tab Mentor -->
                     <div x-show="currentTab === 'mentor'" class="flex flex-wrap items-center gap-2" x-cloak>
-                        <button type="button" onclick="document.getElementById('modalImportMentor').classList.remove('hidden')" 
-                                class="px-4 py-1.5 bg-emerald-600 border border-emerald-700 text-white rounded-sm text-[10px] font-black hover:bg-emerald-700 transition uppercase tracking-widest shadow-sm flex items-center justify-center gap-1 cursor-pointer">
-                            Import Excel
-                        </button>
-                        <a href="{{ route('academic.exportMentor') }}" 
-                           class="px-4 py-1.5 bg-slate-700 border border-slate-800 text-white rounded-sm text-[10px] font-black hover:bg-slate-800 transition uppercase tracking-widest shadow-sm flex items-center justify-center">
-                            Export Excel
-                        </a>
-                        <button type="button" onclick="document.getElementById('modalCreateTrainer').classList.remove('hidden')" 
-                                class="px-4 py-1.5 bg-[#22a0f6] text-white rounded-sm text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition shadow-md cursor-pointer border-none">
-                            + Add New Entry
-                        </button>
+                        <button type="button" onclick="document.getElementById('modalImportMentor').classList.remove('hidden')" class="px-4 py-1.5 bg-emerald-600 border border-emerald-700 text-white rounded-sm text-[10px] font-black hover:bg-emerald-700 transition uppercase tracking-widest shadow-sm flex items-center justify-center gap-1 cursor-pointer">Import Excel</button>
+                        <a href="{{ route('academic.exportMentor') }}" class="px-4 py-1.5 bg-slate-700 border border-slate-800 text-white rounded-sm text-[10px] font-black hover:bg-slate-800 transition uppercase tracking-widest shadow-sm flex items-center justify-center">Export Excel</a>
+                        <button type="button" onclick="document.getElementById('modalCreateTrainer').classList.remove('hidden')" class="px-4 py-1.5 bg-[#22a0f6] text-white rounded-sm text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition shadow-md cursor-pointer border-none">+ Add New Entry</button>
                     </div>
                 </div>
-
             </div>
         </div>
 
+        <!-- TABLE VIEW PROGRAM PELATIHAN -->
         <div x-show="currentTab === 'pelatihan'" x-cloak>
             <div class="bg-white border border-slate-200 shadow-sm overflow-x-auto">
                 <table class="w-full text-left border-collapse whitespace-nowrap" id="table-pelatihan-master">
@@ -131,10 +148,10 @@
                             </td>
                             <td class="px-6 py-3.5 text-right pr-6">
                                 <div class="flex justify-end gap-1 items-center">
-                                    <button type="button" onclick="bukaModalEditPelatihan({{ json_encode($p) }}, '{{ implode(', ', $p->komponen_nilai ?? []) }}')" class="p-1.5 border border-slate-200 text-[#22a0f6] hover:bg-[#22a0f6] hover:text-white transition-colors cursor-pointer">
+                                    <button type="button" onclick="bukaModalEditPelatihan({{ json_encode($p) }}, '{{ implode(', ', $p->komponen_nilai ?? []) }}', '{{ route('academic.updatePelatihan', $p->id) }}')" class="p-1.5 border border-slate-200 text-[#22a0f6] hover:bg-[#22a0f6] hover:text-white transition-colors cursor-pointer">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </button>
-                                    <button type="button" onclick="mintaVerifikasiHapus('pelatihan', {{ $p->id }}, '{{ $p->nama_pelatihan }}')" class="p-1.5 border border-slate-200 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors cursor-pointer">
+                                    <button type="button" onclick="mintaVerifikasiHapus('{{ route('academic.destroyPelatihan', $p->id) }}', '{{ addslashes($p->nama_pelatihan) }}')" class="p-1.5 border border-slate-200 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors cursor-pointer">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2.5"></path></svg>
                                     </button>
                                 </div>
@@ -148,6 +165,7 @@
             </div>
         </div>
 
+        <!-- TABLE VIEW DATA MASTER MENTOR -->
         <div x-show="currentTab === 'mentor'" x-cloak>
             <div class="bg-white border border-slate-200 shadow-sm overflow-x-auto">
                 <table class="w-full text-left border-collapse whitespace-nowrap" id="table-mentor-master">
@@ -167,19 +185,25 @@
                         @forelse($trainers as $index => $t)
                         <tr class="hover:bg-slate-50 transition-colors row-data-search">
                             <td class="px-6 py-4 text-[11px] font-black text-slate-400 text-center index-number">{{ str_pad($index + 1, 3, '0', STR_PAD_LEFT) }}</td>
+                            
+                            <!-- KOLOM RENDERING FOTO MENTOR (SUDAH FIX ANTI-CACHE & DYNAMIC STORAGE URL) -->
                             <td class="px-6 py-3 text-center">
                                 <div class="w-9 h-9 mx-auto bg-slate-100 border border-slate-200 flex items-center justify-center font-black text-[8px] overflow-hidden shadow-sm">
-                                    @if($t->foto) <img src="{{ asset('storage/'.$t->foto) }}" class="object-cover w-full h-full">
-                                    @else <span class="text-slate-400 font-bold">NO_IMG</span> @endif
+                                    @if($t->foto) 
+                                        <img src="{{ Storage::url($t->foto) }}?v={{ time() }}" class="object-cover w-full h-full">
+                                    @else 
+                                        <span class="text-slate-400 font-bold">NO_IMG</span> 
+                                    @endif
                                 </div>
                             </td>
+
                             <td class="px-6 py-4 text-[12px] font-black text-slate-700 uppercase truncate searchable-field">{{ $t->nama_mentor }}</td>
                             <td class="px-6 py-4 text-[11px] font-bold text-slate-600 tracking-wider uppercase searchable-field">{{ $t->nidn ?? '-' }}</td>
                             <td class="px-6 py-4 text-[11px] font-bold text-slate-500 uppercase truncate searchable-field">{{ $t->ttl ?? '-' }}</td>
                             <td class="px-6 py-4 text-[9px] font-black uppercase searchable-field">
                                 <span class="px-2 py-0.5 rounded-sm border uppercase tracking-wide {{ $t->sektor_keahlian == 'Pengetahuan Teknis' ? 'bg-blue-50/80 border-blue-200 text-blue-600' : 'bg-white border-slate-200 text-slate-600 shadow-sm' }}">
                                     {{ $t->sektor_keahlian }}
-                                endforeach
+                                </span>
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <span class="text-[8px] font-black px-1.5 py-0.5 rounded-sm {{ $t->status == 'AKTIF' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-rose-50 text-rose-600 border border-rose-200' }}">
@@ -188,10 +212,10 @@
                             </td>
                             <td class="px-6 py-4 text-right pr-6">
                                 <div class="flex justify-end gap-1 items-center">
-                                    <button type="button" onclick="bukaModalEditMentor({{ json_encode($t) }})" class="p-1.5 border border-slate-200 text-[#22a0f6] hover:bg-[#22a0f6] hover:text-white transition-colors cursor-pointer">
+                                    <button type="button" onclick="bukaModalEditMentor({{ json_encode($t) }}, '{{ route('academic.updateTrainer', $t->id) }}')" class="p-1.5 border border-slate-200 text-[#22a0f6] hover:bg-[#22a0f6] hover:text-white transition-colors cursor-pointer">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </button>
-                                    <button type="button" onclick="mintaVerifikasiHapus('mentor', {{ $t->id }}, '{{ $t->nama_mentor }}')" class="p-1.5 border border-slate-200 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors cursor-pointer">
+                                    <button type="button" onclick="mintaVerifikasiHapus('{{ route('academic.destroyTrainer', $t->id) }}', '{{ addslashes($t->nama_mentor) }}')" class="p-1.5 border border-slate-200 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors cursor-pointer">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2.5"></path></svg>
                                     </button>
                                 </div>
@@ -204,106 +228,101 @@
                 </table>
             </div>
         </div>
-    </div>
+    </div> 
 
-    <div id="modalSecureDelete" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md shadow-2xl border border-slate-200 overflow-hidden rounded-none">
-            <div class="px-5 py-3.5 border-b border-rose-100 bg-rose-50/40 flex items-center gap-2">
-                <span class="text-rose-500 font-bold text-sm">⚠️</span>
-                <h4 class="text-[10px] font-black text-rose-700 uppercase tracking-widest">CRITICAL RELATIONAL DELETION</h4>
+   
+    <div class="print:hidden">
+        
+        <!--MODAL SECURE RELATIONAL DELETE -->
+        <div id="modalSecureDelete" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-md shadow-2xl border border-slate-200 overflow-hidden rounded-none">
+                <div class="px-5 py-3.5 border-b border-rose-100 bg-rose-50/40 flex items-center gap-2">
+                    <span class="text-rose-500 font-bold text-sm">⚠️</span>
+                    <h4 class="text-[10px] font-black text-rose-700 uppercase tracking-widest">CRITICAL RELATIONAL DELETION</h4>
+                </div>
+                <form id="formSecureDelete" action="" method="POST" class="p-5 space-y-3.5">
+                    @csrf @method('DELETE')
+                    <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wide leading-relaxed">
+                        Tindakan ini permanen! Menghapus data dapat memutus interelasi nilai kompetensi JSON peserta di database.
+                    </p>
+                    <div class="bg-slate-50 border border-slate-200 p-2.5 text-center select-none">
+                        <p id="delete-target-name" class="text-xs font-black text-slate-800 tracking-tight uppercase"></p>
+                    </div>
+                    <input type="text" id="input-delete-verify" onkeyup="evaluasiTombolHapus()" placeholder="Ketik kembali nama di atas..." class="w-full bg-white border border-slate-300 rounded-none px-3 py-2 text-[10px] font-black text-slate-800 focus:outline-none focus:border-rose-500 uppercase tracking-wider">
+                    <div class="flex gap-2">
+                        <button type="button" onclick="tutupSecureDeleteModal()" class="w-1/3 border border-slate-200 text-slate-400 py-2 text-[9px] font-black uppercase">BATAL</button>
+                        <button type="submit" id="btn-confirm-delete-final" disabled class="w-2/3 bg-slate-200 text-slate-400 py-2 text-[9px] font-black uppercase tracking-widest cursor-not-allowed">CONFIRM & DELETE</button>
+                    </div>
+                </form>
             </div>
-            <form id="formSecureDelete" method="POST" class="p-5 space-y-3.5">
-                @csrf @method('DELETE')
-                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wide leading-relaxed">
-                    Tindakan ini permanen! Menghapus data dapat memutus interelasi nilai kompetensi JSON peserta di database.
-                </p>
-                <div class="bg-slate-50 border border-slate-200 p-2.5 text-center select-none">
-                    <p id="delete-target-name" class="text-xs font-black text-slate-800 tracking-tight uppercase"></p>
+        </div>
+
+        <!-- FORM MODAL EDIT MASTER MENTOR -->
+        <div id="modalEditTrainer" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-sm shadow-xl border border-slate-200 overflow-hidden rounded-none">
+                <div class="px-5 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                    <h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">EDIT PROFIL MENTOR</h3>
+                    <button type="button" onclick="document.getElementById('modalEditTrainer').classList.add('hidden')" class="text-slate-400 hover:text-rose-500 text-lg leading-none">&times;</button>
                 </div>
-                <input type="text" id="input-delete-verify" onkeyup="evaluasiTombolHapus()" placeholder="Ketik kembali nama di atas..." class="w-full bg-white border border-slate-300 rounded-none px-3 py-2 text-[10px] font-black text-slate-800 focus:outline-none focus:border-rose-500 uppercase tracking-wider">
-                <div class="flex gap-2">
-                    <button type="button" onclick="tutupSecureDeleteModal()" class="w-1/3 border border-slate-200 text-slate-400 py-2 text-[9px] font-black uppercase">BATAL</button>
-                    <button type="submit" id="btn-confirm-delete-final" disabled class="w-2/3 bg-slate-200 text-slate-400 py-2 text-[9px] font-black uppercase tracking-widest cursor-not-allowed">CONFIRM & DELETE</button>
-                </div>
-            </form>
+                <form id="formEditTrainer" action="" method="POST" enctype="multipart/form-data" class="p-5 space-y-3.5">
+                    @csrf @method('PUT')
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="col-span-2"><input type="text" id="edit_nama_mentor" name="nama_mentor" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2.5 py-1.5 text-[11px] font-medium text-slate-800 focus:outline-none" required></div>
+                        <div><input type="text" id="edit_nidn" name="nidn" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 text-[11px] font-medium text-slate-800"></div>
+                    </div>
+                    <div><input type="text" id="edit_ttl" name="ttl" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2.5 py-1.5 text-[11px] font-medium text-slate-800" required></div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div><input type="email" id="edit_email" name="email" class="w-full bg-slate-50 border border-slate-200 text-[11px] font-medium px-2.5 py-1.5"></div>
+                        <div><input type="text" id="edit_kontak" name="kontak" maxlength="13" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 13);" class="w-full bg-slate-50 border border-slate-200 text-[11px] font-medium px-2.5 py-1.5"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <select id="edit_sektor_keahlian" name="sektor_keahlian" class="w-full bg-slate-50 border border-slate-200 text-[10px] font-bold text-slate-600" required>
+                                <option value="Pengetahuan Teknis">PENGETAHUAN TEKNIS</option>
+                                <option value="Pengetahuan Non Teknis">PENGETAHUAN NON TEKNIS</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select id="edit_status" name="status" class="w-full bg-slate-50 border border-slate-200 text-[10px] font-bold text-slate-600" required>
+                                <option value="AKTIF">AKTIF</option>
+                                <option value="NON-AKTIF">NON-AKTIF</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <!--FORM INPUT FOTO BARU -->
+                        <div class="border border-dashed border-slate-200 bg-slate-50 p-2.5 flex flex-col items-center justify-center relative cursor-pointer">
+                            <span id="label_edit_foto" class="text-[10px] font-semibold text-slate-400">Ubah foto...</span>
+                            <input type="file" name="foto" accept="image/*" onchange="document.getElementById('label_edit_foto').innerText = this.files[0].name" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        </div>
+                    </div>
+                    <div class="pt-2 flex gap-2">
+                        <button type="button" onclick="document.getElementById('modalEditTrainer').classList.add('hidden')" class="w-1/3 border border-slate-200 text-[9px] font-black uppercase py-2">CANCEL</button>
+                        <button type="submit" class="w-2/3 bg-slate-900 text-white text-[9px] font-black uppercase py-2">SAVE CHANGES</button>
+                    </div>
+                </form>
+            </div>
         </div>
+
+        <!--MODAL EDIT PELATIHAN -->
+        <div id="modalEditPelatihan" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-md shadow-xl border border-slate-200 overflow-hidden rounded-none">
+                <div class="px-5 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center"><h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">EDIT PROGRAM PELATIHAN</h3><button type="button" onclick="document.getElementById('modalEditPelatihan').classList.add('hidden')" class="text-slate-400 hover:text-rose-500 text-lg leading-none">&times;</button></div>
+                <form id="formEditPelatihan" action="" method="POST" class="p-5 space-y-4">@csrf @method('PUT')
+                    <div><input type="text" id="edit_nama_pelatihan" name="nama_pelatihan" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2.5 py-1.5 text-[11px] font-medium text-slate-800 focus:outline-none" required></div>
+                    <div><select id="edit_spektrum_kategori" name="spektrum_kategori" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 text-[10px] font-bold text-slate-600 focus:outline-none" required><option value="Pengetahuan Teknis">PENGETAHUAN TEKNIS</option><option value="Pengetahuan Non Teknis">PENGETAHUAN NON TEKNIS</option></select></div>
+                    <div><select id="edit_trainer_id" name="trainer_id" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 text-[10px] font-bold text-slate-600 uppercase focus:outline-none" required>@foreach($trainers as $t)<option value="{{ $t->id }}">{{ $t->nama_mentor }}</option>@endforeach</select></div>
+                    <div><input type="text" id="edit_raw_komponen" name="raw_komponen" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2.5 py-1.5 text-[11px] font-medium text-slate-800 focus:outline-none" required></div>
+                    <div class="pt-2 flex gap-2"><button type="button" onclick="document.getElementById('modalEditPelatihan').classList.add('hidden')" class="w-1/3 border border-slate-200 text-[9px] font-black uppercase py-2">CANCEL</button><button type="submit" class="w-2/3 bg-slate-900 text-white text-[9px] font-black uppercase py-2">UPDATE CONFIG</button></div>
+                </form>
+            </div>
+        </div>
+
+        @include('academic.sub-data.modals-pelatihan')
+        @include('academic.sub-data.modals-mentor')
     </div>
 
-    <div id="modalImportPelatihan" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm shadow-xl border border-slate-200 overflow-hidden rounded-none">
-            <div class="px-5 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center"><h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">IMPORT PELATIHAN</h3><button type="button" onclick="document.getElementById('modalImportPelatihan').classList.add('hidden')" class="text-slate-400 text-lg">&times;</button></div>
-            <form action="{{ route('academic.importPelatihan') }}" method="POST" enctype="multipart/form-data" class="p-5 space-y-4">@csrf
-                <div><div class="border border-dashed border-slate-200 bg-slate-50 p-4 flex flex-col items-center justify-center relative cursor-pointer"><span id="lbl_imp_p" class="text-[10px] font-semibold text-slate-400">Pilih berkas Excel...</span><input type="file" name="file_excel" required accept=".xlsx, .xls" onchange="document.getElementById('lbl_imp_p').innerText = this.files[0].name" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"></div></div>
-                <div class="pt-2 flex gap-2"><button type="button" onclick="document.getElementById('modalImportPelatihan').classList.add('hidden')" class="w-1/3 border border-slate-200 text-[9px] font-black uppercase py-2">CANCEL</button><button type="submit" class="w-2/3 bg-emerald-700 text-white text-[9px] font-black uppercase py-2">UPLOAD MASTER</button></div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modalImportMentor" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm shadow-xl border border-slate-200 overflow-hidden rounded-none">
-            <div class="px-5 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center"><h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">IMPORT MENTOR</h3><button type="button" onclick="document.getElementById('modalImportMentor').classList.add('hidden')" class="text-slate-400 text-lg">&times;</button></div>
-            <form action="{{ route('academic.importMentor') }}" method="POST" enctype="multipart/form-data" class="p-5 space-y-4">@csrf
-                <div><div class="border border-dashed border-slate-200 bg-slate-50 p-4 flex flex-col items-center justify-center relative cursor-pointer"><span id="lbl_imp_m" class="text-[10px] font-semibold text-slate-400">Pilih berkas Excel...</span><input type="file" name="file_excel" required accept=".xlsx, .xls" onchange="document.getElementById('lbl_imp_m').innerText = this.files[0].name" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"></div></div>
-                <div class="pt-2 flex gap-2"><button type="button" onclick="document.getElementById('modalImportMentor').classList.add('hidden')" class="w-1/3 border border-slate-200 text-[9px] font-black uppercase py-2">CANCEL</button><button type="submit" class="w-2/3 bg-emerald-700 text-white text-[9px] font-black uppercase py-2">UPLOAD MASTER</button></div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modalCreatePelatihan" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md shadow-xl border border-slate-200 overflow-hidden rounded-none">
-            <div class="px-5 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center"><h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">BUAT MASTER PELATIHAN</h3><button type="button" onclick="document.getElementById('modalCreatePelatihan').classList.add('hidden')" class="text-slate-400 hover:text-rose-500 text-lg leading-none">&times;</button></div>
-            <form action="{{ route('academic.storePelatihan') }}" method="POST" class="p-5 space-y-4">@csrf
-                <div><label class="block text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Nama Kelas Pelatihan</label><input type="text" name="nama_pelatihan" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2.5 py-1.5 text-[11px] font-medium text-slate-800 focus:outline-none" required placeholder="Panen Kelapa Sawit"></div>
-                <div><label class="block text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Kategori Spektrum</label><select name="spektrum_kategori" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 text-[10px] font-bold text-slate-600 focus:outline-none" required><option value="Pengetahuan Teknis">PENGETAHUAN TEKNIS</option><option value="Pengetahuan Non Teknis">PENGETAHUAN NON TEKNIS</option></select></div>
-                <div><label class="block text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Pilih Mentor Pengampu</label><select name="trainer_id" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 text-[10px] font-bold text-slate-600 uppercase focus:outline-none" required><option value="">-- CHOOSE MENTOR --</option>@foreach($trainers as $t)<option value="{{ $t->id }}">{{ $t->nama_mentor }}</option>@endforeach</select></div>
-                <div><label class="block text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Komponen Bobot Nilai</label><input type="text" name="raw_komponen" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2.5 py-1.5 text-[11px] font-medium text-slate-800 focus:outline-none" required placeholder="Tugas, UTS, UAS, Praktik"></div>
-                <div class="pt-2 flex gap-2"><button type="button" onclick="document.getElementById('modalCreatePelatihan').classList.add('hidden')" class="w-1/3 border border-slate-200 text-[9px] font-black uppercase py-2">CANCEL</button><button type="submit" class="w-2/3 bg-slate-900 text-white text-[9px] font-black uppercase py-2">COMMIT TO MASTER</button></div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modalEditPelatihan" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md shadow-xl border border-slate-200 overflow-hidden rounded-none">
-            <div class="px-5 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center"><h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">EDIT PROGRAM PELATIHAN</h3><button type="button" onclick="document.getElementById('modalEditPelatihan').classList.add('hidden')" class="text-slate-400 hover:text-rose-500 text-lg leading-none">&times;</button></div>
-            <form id="formEditPelatihan" method="POST" class="p-5 space-y-4">@csrf @method('PUT')
-                <div><input type="text" id="edit_nama_pelatihan" name="nama_pelatihan" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2.5 py-1.5 text-[11px] font-medium text-slate-800 focus:outline-none" required></div>
-                <div><select id="edit_spektrum_kategori" name="spektrum_kategori" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 text-[10px] font-bold text-slate-600 focus:outline-none" required><option value="Pengetahuan Teknis">PENGETAHUAN TEKNIS</option><option value="Pengetahuan Non Teknis">PENGETAHUAN NON TEKNIS</option></select></div>
-                <div><select id="edit_trainer_id" name="trainer_id" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 text-[10px] font-bold text-slate-600 uppercase focus:outline-none" required>@foreach($trainers as $t)<option value="{{ $t->id }}">{{ $t->nama_mentor }}</option>@endforeach</select></div>
-                <div><input type="text" id="edit_raw_komponen" name="raw_komponen" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2.5 py-1.5 text-[11px] font-medium text-slate-800 focus:outline-none" required></div>
-                <div class="pt-2 flex gap-2"><button type="button" onclick="document.getElementById('modalEditPelatihan').classList.add('hidden')" class="w-1/3 border border-slate-200 text-[9px] font-black uppercase py-2">CANCEL</button><button type="submit" class="w-2/3 bg-slate-900 text-white text-[9px] font-black uppercase py-2">UPDATE CONFIG</button></div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modalCreateTrainer" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm shadow-xl border border-slate-200 overflow-hidden rounded-none">
-            <div class="px-5 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center"><h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">REGISTRASI MENTOR</h3><button type="button" onclick="document.getElementById('modalCreateTrainer').classList.add('hidden')" class="text-slate-400 hover:text-rose-500 text-lg leading-none">&times;</button></div>
-            <form action="{{ route('academic.storeTrainer') }}" method="POST" enctype="multipart/form-data" class="p-5 space-y-3.5">@csrf
-                <div class="grid grid-cols-3 gap-2"><div class="col-span-2"><input type="text" name="nama_mentor" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2.5 py-1.5 text-[11px] font-medium text-slate-800 focus:outline-none" required placeholder="Nama & Gelar"></div><div><input type="text" name="nidn" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 text-[11px] font-medium text-slate-800" placeholder="NIDN"></div></div>
-                <div class="grid grid-cols-2 gap-2"><div><input type="text" name="tempat_lahir" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2.5 py-1.5 text-[11px] font-medium text-slate-800" required placeholder="Tempat Lahir"></div><div><input type="date" name="tanggal_lahir" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2.5 py-1.5 text-[11px] font-medium text-slate-700" required></div></div>
-                <div class="grid grid-cols-2 gap-2"><div><input type="email" name="email" class="w-full bg-slate-50 border border-slate-200 text-[11px] font-medium px-2.5 py-1.5" placeholder="Email"></div><div><input type="text" name="kontak" class="w-full bg-slate-50 border border-slate-200 text-[11px] font-medium px-2.5 py-1.5" placeholder="HP"></div></div>
-                <div><select name="sektor_keahlian" class="w-full bg-slate-50 border border-slate-200 px-2 py-1.5 text-[10px] font-bold text-slate-600" required><option value="Pengetahuan Teknis">PENGETAHUAN TEKNIS</option><option value="Pengetahuan Non Teknis">PENGETAHUAN NON TEKNIS</option></select></div>
-                <div><div class="border border-dashed border-slate-200 bg-slate-50 p-2.5 flex flex-col items-center justify-center relative cursor-pointer"><span id="label_foto_mentor" class="text-[10px] font-semibold text-slate-400">Pilih file foto...</span><input type="file" name="foto" onchange="document.getElementById('label_foto_mentor').innerText = this.files[0].name" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"></div></div>
-                <div class="pt-2 flex gap-2"><button type="button" onclick="document.getElementById('modalCreateTrainer').classList.add('hidden')" class="w-1/3 border border-slate-200 text-[9px] font-black uppercase py-2">CANCEL</button><button type="submit" class="w-2/3 bg-slate-900 text-white text-[9px] font-black uppercase py-2">REGISTER</button></div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modalEditTrainer" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm shadow-xl border border-slate-200 overflow-hidden rounded-none">
-            <div class="px-5 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center"><h3 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">EDIT PROFIL MENTOR</h3><button type="button" onclick="document.getElementById('modalEditTrainer').classList.add('hidden')" class="text-slate-400 hover:text-rose-500 text-lg leading-none">&times;</button></div>
-            <form id="formEditTrainer" method="POST" enctype="multipart/form-data" class="p-5 space-y-3.5">@csrf @method('PUT')
-                <div class="grid grid-cols-3 gap-2"><div class="col-span-2"><input type="text" id="edit_nama_mentor" name="nama_mentor" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2.5 py-1.5 text-[11px] font-medium text-slate-800 focus:outline-none" required></div><div><input type="text" id="edit_nidn" name="nidn" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 text-[11px] font-medium text-slate-800"></div></div>
-                <div><input type="text" id="edit_ttl" name="ttl" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2.5 py-1.5 text-[11px] font-medium text-slate-800" required></div>
-                <div class="grid grid-cols-2 gap-2"><div><input type="email" id="edit_email" name="email" class="w-full bg-slate-50 border border-slate-200 text-[11px] font-medium px-2.5 py-1.5"></div><div><input type="text" id="edit_kontak" name="kontak" class="w-full bg-slate-50 border border-slate-200 text-[11px] font-medium px-2.5 py-1.5"></div></div>
-                <div class="grid grid-cols-2 gap-2"><div><select id="edit_sektor_keahlian" name="sektor_keahlian" class="w-full bg-slate-50 border border-slate-200 text-[10px] font-bold text-slate-600" required><option value="Pengetahuan Teknis">PENGETAHUAN TEKNIS</option><option value="Pengetahuan Non Teknis">PENGETAHUAN NON TEKNIS</option></select></div><div><select id="edit_status" name="status" class="w-full bg-slate-50 border border-slate-200 text-[10px] font-bold text-slate-600" required><option value="AKTIF">AKTIF</option><option value="NON-AKTIF">NON-AKTIF</option></select></div></div>
-                <div><div class="border border-dashed border-slate-200 bg-slate-50 p-2.5 flex flex-col items-center justify-center relative cursor-pointer"><span id="label_edit_foto" class="text-[10px] font-semibold text-slate-400">Ubah foto...</span><input type="file" name="foto" onchange="document.getElementById('label_edit_foto').innerText = this.files[0].name" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"></div></div>
-                <div class="pt-2 flex gap-2"><button type="button" onclick="document.getElementById('modalEditTrainer').classList.add('hidden')" class="w-1/3 border border-slate-200 text-[9px] font-black uppercase py-2">CANCEL</button><button type="submit" class="w-2/3 bg-slate-900 text-white text-[9px] font-black uppercase py-2">SAVE CHANGES</button></div>
-            </form>
-        </div>
-    </div>
-
-    @push('scripts')
+   
     <script>
         let targetHapusNama = '';
 
@@ -314,15 +333,11 @@
             const rows = document.querySelectorAll(`#${idTabel} .row-data-search`);
             
             let barisTerlihat = 0;
-
             rows.forEach(row => {
                 const fields = row.querySelectorAll('.searchable-field');
                 let matches = false;
-
                 fields.forEach(f => {
-                    if(f.textContent.toLowerCase().includes(inputText)) {
-                        matches = true;
-                    }
+                    if(f.textContent.toLowerCase().includes(inputText)) matches = true;
                 });
 
                 if(matches || inputText === '') {
@@ -336,13 +351,12 @@
             });
         }
 
-        function mintaVerifikasiHapus(jenis, id, namaTarget) {
+        function mintaVerifikasiHapus(deleteUrl, namaTarget) {
             targetHapusNama = namaTarget.trim().toUpperCase();
-            
-            document.getElementById('formSecureDelete').action = `/academic-master/${jenis}/${id}`;
+            document.getElementById('formSecureDelete').action = deleteUrl;
             document.getElementById('delete-target-name').textContent = targetHapusNama;
-            
             document.getElementById('input-delete-verify').value = '';
+            
             const btnFinal = document.getElementById('btn-confirm-delete-final');
             btnFinal.disabled = true;
             btnFinal.className = "w-2/3 bg-slate-200 text-slate-400 py-2 text-[9px] font-black uppercase tracking-widest cursor-not-allowed";
@@ -363,10 +377,12 @@
             }
         }
 
-        function tutupSecureDeleteModal() { document.getElementById('modalSecureDelete').classList.add('hidden'); }
+        function tutupSecureDeleteModal() { 
+            document.getElementById('modalSecureDelete').classList.add('hidden'); 
+        }
 
-        function bukaModalEditPelatihan(data, rawKomponen) {
-            document.getElementById('formEditPelatihan').action = `/academic-master/pelatihan/${data.id}`;
+        function bukaModalEditPelatihan(data, rawKomponen, updateUrl) {
+            document.getElementById('formEditPelatihan').action = updateUrl;
             document.getElementById('edit_nama_pelatihan').value = data.nama_pelatihan;
             document.getElementById('edit_spektrum_kategori').value = data.spektrum_kategori;
             document.getElementById('edit_trainer_id').value = data.trainer_id;
@@ -374,8 +390,8 @@
             document.getElementById('modalEditPelatihan').classList.remove('hidden');
         }
 
-        function bukaModalEditMentor(data) {
-            document.getElementById('formEditTrainer').action = `/academic-master/mentor/${data.id}`;
+        function bukaModalEditMentor(data, updateUrl) {
+            document.getElementById('formEditTrainer').action = updateUrl;
             document.getElementById('edit_nama_mentor').value = data.nama_mentor;
             document.getElementById('edit_nidn').value = data.nidn || '';
             document.getElementById('edit_ttl').value = data.ttl || '';
@@ -387,5 +403,4 @@
             document.getElementById('modalEditTrainer').classList.remove('hidden');
         }
     </script>
-    @endpush
 </x-app-layout>

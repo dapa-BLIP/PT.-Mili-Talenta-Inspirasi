@@ -17,7 +17,7 @@ class MentorExport implements FromCollection, WithHeadings, WithMapping, WithSty
 {
     public function collection()
     {
-        return Trainer::select('nama_mentor', 'nidn', 'ttl', 'email', 'kontak', 'sektor_keahlian', 'status')->get();
+        return Trainer::orderBy('nama_mentor', 'asc')->get();
     }
 
     public function startCell(): string
@@ -27,7 +27,16 @@ class MentorExport implements FromCollection, WithHeadings, WithMapping, WithSty
 
     public function headings(): array
     {
-        return ['NO.', 'NAMA LENGKAP MENTOR', 'NIDN / NIK', 'TEMPAT TANGGAL LAHIR', 'EMAIL', 'KONTAK HP', 'SEKTOR KEAHLIAN', 'STATUS'];
+        return [
+            'NO.', 
+            'NAMA LENGKAP MENTOR', 
+            'NIDN / NIK', 
+            'TEMPAT TANGGAL LAHIR', 
+            'EMAIL', 
+            'KONTAK HP', 
+            'SEKTOR KEAHLIAN', 
+            'STATUS'
+        ];
     }
 
     public function map($row): array
@@ -49,81 +58,56 @@ class MentorExport implements FromCollection, WithHeadings, WithMapping, WithSty
     public function styles(Worksheet $sheet)
     {
         $highestRow = $sheet->getHighestRow();
-        $highestColumn = $sheet->getHighestColumn();
 
         // --- Basa Basi Judul Dokumen (Sisi Atas) ---
         $sheet->getCell('A1')->setValue("PT MILI TALENTA INSPIRASI");
-        $sheet->getStyle('A1')->getFont()->applyFromArray([
-            'name' => 'Arial', 'size' => 16, 'bold' => true, 'color' => ['rgb' => '1E293B']
-        ]);
+        $sheet->getStyle('A1')->getFont()->applyFromArray(['name' => 'Arial', 'size' => 16, 'bold' => true, 'color' => ['rgb' => '1E293B']]);
         
         $sheet->getCell('A2')->setValue("DATABASE INDEKS MASTER MENTOR PENGAMPU");
-        $sheet->getStyle('A2')->getFont()->applyFromArray([
-            'name' => 'Arial', 'size' => 11, 'bold' => true, 'color' => ['rgb' => '475569']
-        ]);
+        $sheet->getStyle('A2')->getFont()->applyFromArray(['name' => 'Arial', 'size' => 11, 'bold' => true, 'color' => ['rgb' => '475569']]);
 
         $sheet->getCell('A4')->setValue("Kategori Berkas:");
         $sheet->getCell('B4')->setValue("DATA MASTER OPERASIONAL");
         $sheet->getCell('A5')->setValue("Tanggal Unduh:");
         $sheet->getCell('B5')->setValue(date('d F Y, H:i') . ' WIB');
         
-        // 🎨 STYLING METADATA: Warna Hijau Solid dengan Teks Putih Kontras kyk Mockup
         $sheet->getStyle('A4:A5')->getFont()->applyFromArray(['name' => 'Arial', 'bold' => true, 'size' => 10, 'color' => ['rgb' => 'FFFFFF']]);
         $sheet->getStyle('B4:B5')->getFont()->applyFromArray(['name' => 'Arial', 'bold' => false, 'size' => 10, 'color' => ['rgb' => 'FFFFFF']]);
 
         $sheet->getStyle('A4:B5')->applyFromArray([
-            'fill' => [
-                'fillType' => Fill::FILL_SOLID,
-                'startColor' => ['rgb' => '047857'], // Hijau Emerald Solid
-            ],
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['rgb' => '000000'],
-                ],
-            ],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '047857']],
+            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]],
         ]);
 
-        // --- Header Styling (Hijau Emerald Premium) ---
-        $sheet->getStyle('A8:' . $highestColumn . '8')->applyFromArray([
-            'font' => [
-                'name' => 'Arial', 'bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 10,
-            ],
-            'fill' => [
-                'fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '047857'],
-            ],
-            'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER,
-            ],
+       
+        $sheet->getStyle('A8:H8')->applyFromArray([
+            'font' => ['name' => 'Arial', 'bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 10],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '047857']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
         ]);
         $sheet->getRowDimension(8)->setRowHeight(25);
 
-        // --- Body Styling & Alignment Grid ---
+    
         for ($row = 9; $row <= $highestRow; $row++) {
             $sheet->getRowDimension($row)->setRowHeight(20);
-            $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('B' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-            $sheet->getStyle('C' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('D' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('E' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-            $sheet->getStyle('F' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('G' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('H' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER); // NO
+            $sheet->getStyle('B' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);   // NAMA
+            $sheet->getStyle('C' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER); // NIDN
+            $sheet->getStyle('D' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER); // TTL
+            $sheet->getStyle('E' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);   // EMAIL
+            $sheet->getStyle('F' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER); // HP
+            $sheet->getStyle('G' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER); // SEKTOR
+            $sheet->getStyle('H' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER); // STATUS
         }
 
-        // --- Solid Hitam Border Tabel ---
-        $sheet->getStyle('A8:' . $highestColumn . $highestRow)->applyFromArray([
+        
+        $sheet->getStyle('A8:H' . $highestRow)->applyFromArray([
             'font' => ['name' => 'Arial', 'size' => 10],
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['rgb' => '000000'],
-                ],
-            ],
+            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]],
         ]);
 
-        // --- FIX LEBAR KOLOM MANUAL ---
-        $widths = ['A' => 16, 'B' => 30, 'C' => 18, 'D' => 25, 'E' => 25, 'F' => 22, 'G' => 22, 'H' => 15];
+       
+        $widths = ['A' => 16, 'B' => 30, 'C' => 18, 'D' => 25, 'E' => 25, 'F' => 22, 'G' => 27, 'H' => 15];
         foreach ($widths as $col => $width) {
             $sheet->getColumnDimension($col)->setWidth($width);
         }

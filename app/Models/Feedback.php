@@ -2,15 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Feedback extends Model
 {
-    // Mengunci nama tabel secara tegas agar Eloquent tidak mencari nama 'feedback' tunggal
-    protected $table = 'feedbacks'; 
+    use HasFactory;
 
-    protected $fillable = [
-        'kategori',
-        'pesan',
-    ];
+    protected $table = 'feedbacks';
+    protected $guarded = [];
 }

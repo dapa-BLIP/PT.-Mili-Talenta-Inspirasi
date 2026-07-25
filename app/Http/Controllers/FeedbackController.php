@@ -7,28 +7,51 @@ use Illuminate\Http\Request;
 
 class FeedbackController extends Controller
 {
-    // Menampilkan halaman feedback anonim (Index)
-    public function index()
+    public function index(Request $request)
     {
-        // Mengambil log data feedback terbaru dari tabel feedbacks
-        $feedbacks = Feedback::latest()->get();
-        return view('feedback.index', compact('feedbacks'));
+        $query = Feedback::latest();
+
+        // Filter jika ada kategori
+        if ($request->filled('category') && $request->category != 'all') {
+            $query->where('kategori', $request->category);
+        }
+
+        $feedbacks = $query->get();
+        $selectedCategory = $request->get('category', 'all');
+
+        return view('feedback.index', compact('feedbacks', 'selectedCategory'));
     }
 
-    // Menyimpan input feedback (Jika nanti dibutuhkan integrasi webhook/API Google Form)
-    public function store(Request $request)
+    /**
+     * Simpan Solusi & Tandai Feedback Selesai Perbaikan
+     */
+    public function resolve(Request $request, $id)
     {
-        $validated = $request->validate([
-            'kategori' => 'required|string',
-            'pesan' => 'required|string',
+        $request->validate([
+            'solusi' => 'required|string|max:1000',
         ]);
 
-        Feedback::create([
-            'kategori' => $validated['kategori'],
-            'pesan' => $validated['pesan'],
+        $feedback = Feedback::findOrFail($id);
+        $feedback->update([
+            'status' => 'resolved',
+            'solusi' => $request->solusi,
         ]);
 
-        return redirect()->route('feedback.index')
-                         ->with('success', 'Transmission secure. Feedback logged.');
+        return redirect()->back()->with('success', 'Masalah feedback berhasil ditandai selesai!');
+    }
+
+    public function webhookStore(Request $request)
+    {
+        try {
+            Feedback::create([
+                'kategori' => $request->input('kategori', 'Umum'),
+                'pesan'    => $request->input('pesan', '-'),
+                'status'   => 'pending',
+            ]);
+
+            return response()->json(['status' => 'success'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 }
