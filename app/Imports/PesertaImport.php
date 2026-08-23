@@ -5,6 +5,7 @@ namespace App\Imports;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Illuminate\Support\Facades\DB;
 
 class PesertaImport implements ToCollection, WithHeadingRow
 {
@@ -27,10 +28,10 @@ class PesertaImport implements ToCollection, WithHeadingRow
             $email       = $row['email'] ?? null;
             $noHp        = $row['no_handphone'] ?? $row['no_hp'] ?? null;
             $tempatKerja = $row['tempat_kerja'] ?? null;
-            $pelatihan   = $row['sektor_pelatihan'] ?? $row['batch_pelatihan'] ?? '';
+            $pelatihan   = $row['sektor_pelatihan'] ?? $row['pelatihan'] ?? '';
             $status      = $row['status_verifikasi'] ?? $row['status'] ?? 'PENDING';
 
-            // 1. VALIDASI DATA HARUS ISI
+            // 1. VALIDASI WAJIB ISI
             if (empty($namaLengkap) || trim($namaLengkap) == '') {
                 throw new \Exception("Gagal Import! Data pada Baris ke-{$lineNumber} bermasalah: Kolom [NAMA LENGKAP] kosong.");
             }
@@ -49,8 +50,8 @@ class PesertaImport implements ToCollection, WithHeadingRow
                 $noHp = str_replace(["'", "`"], "", trim($noHp));
                 if ($noHp == '-') $noHp = null;
                 
-                if ($noHp && (strlen($noHp) < 10 || strlen($noHp) > 13)) {
-                    throw new \Exception("Gagal Import! Baris ke-{$lineNumber}: Nomor HP [{$noHp}] tidak valid (Harus berukuran 10 sampai 13 digit angka).");
+                if ($noHp && (strlen($noHp) < 10 || strlen($noHp) > 15)) {
+                    throw new \Exception("Gagal Import! Baris ke-{$lineNumber}: Nomor HP [{$noHp}] tidak valid (10-15 digit).");
                 }
             }
 
@@ -60,9 +61,13 @@ class PesertaImport implements ToCollection, WithHeadingRow
             
             // Normalisasi Gender
             $genderClean = strtolower(trim($gender));
-            if (in_array($genderClean, ['pria', 'l', 'laki-laki', 'laki'])) { $genderClean = 'pria'; }
-            elseif (in_array($genderClean, ['wanita', 'p', 'perempuan'])) { $genderClean = 'wanita'; }
-            else { $genderClean = 'pria'; }
+            if (in_array($genderClean, ['pria', 'l', 'laki-laki', 'laki'])) { 
+                $genderClean = 'pria'; 
+            } elseif (in_array($genderClean, ['wanita', 'p', 'perempuan'])) { 
+                $genderClean = 'wanita'; 
+            } else { 
+                $genderClean = 'pria'; 
+            }
 
             // Normalisasi TTL
             $ttlClean = trim($ttl);
@@ -74,25 +79,24 @@ class PesertaImport implements ToCollection, WithHeadingRow
                     $parts = explode(',', $ttlClean, 2);
                     $ttlClean = ucwords(strtolower(trim($parts[0]))) . ', ' . trim($parts[1]);
                 }
-            } else { $ttlClean = 'Bekasi, ' . date('d-m-Y'); }
+            } else { 
+                $ttlClean = 'Bekasi, ' . date('d-m-Y'); 
+            }
 
-            // 2. ENGINE AUTOMATIC UPSERT DENGAN FRIENDLY WARNING HANDLER
+            // 2. DATABASE UPSERT
             try {
-                // Konversi string "00000007" jadi integer angka 7 murni buat dibaca DB cook
                 $idInt = $idPeserta ? (int)str_replace(["'", "`"], "", trim($idPeserta)) : null;
-                $cekPeserta = null;
-
-                // Selalu utamakan cek email_clean biar tameng databasenya kokoh anti-duplikat
-                $cekPeserta = \Illuminate\Support\Facades\DB::table('pesertas')->where('email', $emailClean)->first();
+                
+                $cekPeserta = DB::table('pesertas')->where('email', $emailClean)->first();
 
                 if (!$cekPeserta && $idInt) {
-                    $cekPeserta = \Illuminate\Support\Facades\DB::table('pesertas')->where('id', $idInt)->first();
+                    $cekPeserta = DB::table('pesertas')->where('id', $idInt)->first();
                 }
 
                 $dataArray = [
                     'nama_lengkap' => $namaClean,
                     'gender'       => $genderClean,
-                    'pelatihan'    => $pelatihanClean ?: 'Batch Kelapa Sawit',
+                    'pelatihan'    => $pelatihanClean ?: 'Pelatihan Teknis',
                     'ttl'          => $ttlClean,
                     'no_hp'        => $noHp,
                     'tempat_kerja' => $tempatKerja && trim($tempatKerja) != '-' ? ucwords(strtolower(trim($tempatKerja))) : 'PT MILI',
@@ -101,17 +105,16 @@ class PesertaImport implements ToCollection, WithHeadingRow
                 ];
 
                 if ($cekPeserta) {
-                    \Illuminate\Support\Facades\DB::table('pesertas')->where('id', $cekPeserta->id)->update($dataArray);
+                    DB::table('pesertas')->where('id', $cekPeserta->id)->update($dataArray);
                 } else {
                     $dataArray['email']      = $emailClean;
                     $dataArray['created_at'] = now();
-                    \Illuminate\Support\Facades\DB::table('pesertas')->insert($dataArray);
+                    DB::table('pesertas')->insert($dataArray);
                 }
 
             } catch (\Exception $e) {
-                // 🚀 UPDATE CERDAS: Bungkus SQL State error kaku menjadi bahasa friendly biar lu ga malu-maluin pas demo bray!
                 if (str_contains($e->getMessage(), 'UNIQUE constraint failed')) {
-                    throw new \Exception("Gagal Menyimpan! Data pada Baris ke-{$lineNumber} terdeteksi ganda: Alamat Email [{$emailClean}] sudah terdaftar di sistem sebelumnya.");
+                    throw new \Exception("Gagal Menyimpan! Data Baris ke-{$lineNumber}: Email [{$emailClean}] sudah terdaftar.");
                 }
                 throw new \Exception("Gagal Memproses Baris ke-{$lineNumber}: " . $e->getMessage());
             }

@@ -10,13 +10,13 @@ class Trainer extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nama_mentor', // 🚀 Update
+        'nama_mentor', 
         'nidn', 
         'ttl', 
         'email', 
         'kontak', 
         'sektor_keahlian', 
-        'foto', // 🚀 Tambah
+        'foto',
         'status'
     ];
 

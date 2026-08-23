@@ -27,7 +27,7 @@ class PelatihanExport implements FromCollection, WithHeadings, WithMapping, With
 
     public function headings(): array
     {
-        return ['NO.', 'NAMA PROGRAM PELATIHAN', 'MENTOR PENGAMPU', 'KOMPONEN PENILAIAN', 'KATEGORI SPEKTRUM'];
+        return ['NO.', 'PROGRAM PELATIHAN', 'MENTOR', 'PENILAIAN', 'SPESALIS'];
     }
 
     public function map($p): array

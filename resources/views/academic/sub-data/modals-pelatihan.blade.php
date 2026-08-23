@@ -42,18 +42,18 @@
         <form action="{{ route('academic.storePelatihan') }}" method="POST" class="p-5 space-y-4">
             @csrf
             <div>
-                <label class="block text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Nama Kelas Pelatihan</label>
+                <label class="block text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Nama Pelatihan</label>
                 <input type="text" name="nama_pelatihan" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2.5 py-1.5 text-[11px] font-medium text-slate-800 focus:outline-none" required placeholder="Panen Kelapa Sawit">
             </div>
             <div>
-                <label class="block text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Kategori Spektrum</label>
+                <label class="block text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Spesalis</label>
                 <select name="spektrum_kategori" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 text-[10px] font-bold text-slate-600 focus:outline-none" required>
                     <option value="Pengetahuan Teknis">PENGETAHUAN TEKNIS</option>
                     <option value="Pengetahuan Non Teknis">PENGETAHUAN NON TEKNIS</option>
                 </select>
             </div>
             <div>
-                <label class="block text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Pilih Mentor Pengampu</label>
+                <label class="block text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Pilih Mentor</label>
                 <select name="trainer_id" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2 py-1.5 text-[10px] font-bold text-slate-600 uppercase focus:outline-none" required>
                     <option value="">-- CHOOSE MENTOR --</option>
                     @foreach($trainers as $t)
@@ -62,12 +62,12 @@
                 </select>
             </div>
             <div>
-                <label class="block text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Komponen Bobot Nilai</label>
+                <label class="block text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Komponen Nilai</label>
                 <input type="text" name="raw_komponen" class="w-full bg-slate-50 border border-slate-200 rounded-none px-2.5 py-1.5 text-[11px] font-medium text-slate-800 focus:outline-none" required placeholder="Tugas, UTS, UAS, Praktik">
             </div>
             <div class="pt-2 flex gap-2">
                 <button type="button" onclick="document.getElementById('modalCreatePelatihan').classList.add('hidden')" class="w-1/3 border border-slate-200 text-[9px] font-black uppercase py-2">CANCEL</button>
-                <button type="submit" class="w-2/3 bg-slate-900 text-white text-[9px] font-black uppercase py-2">COMMIT TO MASTER</button>
+                <button type="submit" class="w-2/3 bg-slate-900 text-white text-[9px] font-black uppercase py-2">CONFIRM</button>
             </div>
         </form>
     </div>

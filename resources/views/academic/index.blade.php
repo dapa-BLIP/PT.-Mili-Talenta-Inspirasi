@@ -5,7 +5,7 @@
             <div class="flex items-center gap-2">
                 <h2 class="text-sm font-black text-slate-700 uppercase tracking-tighter">Master Academic</h2>
                 <span class="text-slate-300 text-xs">/</span>
-                <span class="text-[10px] font-bold text-[#22a0f6] uppercase tracking-widest italic">Academic Master Hub</span>
+                <span class="text-[10px] font-bold text-[#22a0f6] uppercase tracking-widest italic">Academic Master </span>
             </div>
             
             <div class="grid grid-cols-2 bg-slate-100 border border-slate-200 p-0.5 w-72 shrink-0 rounded-sm shadow-inner overflow-hidden">
@@ -54,7 +54,6 @@
         @if ($errors->any())
     <div class="mb-4 px-4 py-3 bg-white border-l-4 border-l-rose-500 border-y border-r border-slate-200 shadow-md flex items-center justify-between transition-all rounded-r-sm">
         <div class="flex items-center gap-3">
-            <!-- 🔴 Icon Bulat Rose Minimalis (Sejajar flex-items-center) -->
             <div class="p-1 bg-rose-50 rounded-full text-rose-600 shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
@@ -75,7 +74,6 @@
             </div>
         </div>
         
-        <!-- ❌ Tombol Silang Close Manual (Biar sama persis fungsinya) -->
         <button type="button" class="text-slate-400 hover:text-slate-600 font-black text-lg p-1 leading-none focus:outline-none" onclick="this.parentElement.remove()">&times;</button>
     </div>
 @endif
@@ -85,8 +83,8 @@
         <div class="bg-white border border-slate-200 py-3 px-4 mb-4 shadow-sm rounded-none">
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div class="shrink-0 min-w-[200px] flex items-center">
-                    <h3 x-show="currentTab === 'pelatihan'" class="text-[11px] font-black text-slate-700 uppercase tracking-widest">Repositori Kelas Pelatihan</h3>
-                    <h3 x-show="currentTab === 'mentor'" class="text-[11px] font-black text-slate-700 uppercase tracking-widest" x-cloak>Database Master Mentor</h3>
+                    <h3 x-show="currentTab === 'pelatihan'" class="text-[11px] font-black text-slate-700 uppercase tracking-widest">Data Program Pelatihan</h3>
+                    <h3 x-show="currentTab === 'mentor'" class="text-[11px] font-black text-slate-700 uppercase tracking-widest" x-cloak>Data Mentor Pelatihan</h3>
                 </div>
 
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 justify-end md:flex-1">
@@ -121,11 +119,11 @@
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-200">
                             <th class="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase w-16 text-center">No.</th>
-                            <th class="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase min-w-[280px]">Nama Program Pelatihan</th>
-                            <th class="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase min-w-[220px]">Mentor Pengampu</th>
+                            <th class="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase min-w-[280px]">Program Pelatihan</th>
+                            <th class="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase min-w-[220px]">Nama Mentor</th>
                             <th class="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase min-w-[320px]">Komponen Penilaian</th>
-                            <th class="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase min-w-[180px]">Kategori Spektrum</th>
-                            <th class="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase text-right w-24 pr-6">Aksi</th>
+                            <th class="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase min-w-[180px]">Spesialis</th>
+                            <th class="px-6 py-3.5 text-[10px] font-black text-slate-400 uppercase w-24 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -173,12 +171,12 @@
                         <tr class="bg-slate-50 border-b border-slate-200">
                             <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase w-16 text-center">No.</th>
                             <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase w-24 text-center">Foto</th>
-                            <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase min-w-[220px]">Nama Lengkap Mentor</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase min-w-[220px]">Nama Mentor</th>
                             <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase min-w-[160px]">NIDN / NIK</th>
                             <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase min-w-[220px]">Tempat, Tanggal Lahir</th>
-                            <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase min-w-[180px]">Sektor Keahlian</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase min-w-[180px]">Spesialis</th>
                             <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase w-24 text-center">Status</th>
-                            <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase text-right w-24 pr-6">Aksi</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase w-24 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -238,7 +236,7 @@
             <div class="bg-white w-full max-w-md shadow-2xl border border-slate-200 overflow-hidden rounded-none">
                 <div class="px-5 py-3.5 border-b border-rose-100 bg-rose-50/40 flex items-center gap-2">
                     <span class="text-rose-500 font-bold text-sm">⚠️</span>
-                    <h4 class="text-[10px] font-black text-rose-700 uppercase tracking-widest">CRITICAL RELATIONAL DELETION</h4>
+                    <h4 class="text-[10px] font-black text-rose-700 uppercase tracking-widest">DANGEROUS ACTION</h4>
                 </div>
                 <form id="formSecureDelete" action="" method="POST" class="p-5 space-y-3.5">
                     @csrf @method('DELETE')

@@ -71,7 +71,7 @@ class PesertaController extends Controller
 
         Peserta::create($data); 
         
-        return redirect()->to('/peserta')->with('success', 'Hore! Data peserta berhasil didaftarkan.');
+        return redirect()->to('/peserta')->with('success', 'Data peserta berhasil didaftarkan.');
     }
 
     /**
@@ -107,7 +107,7 @@ class PesertaController extends Controller
 
         $peserta->update($data);
 
-        return redirect()->to('/peserta')->with('success', 'Mantap! Perubahan data peserta berhasil disimpan.');
+        return redirect()->to('/peserta')->with('success', 'Perubahan data peserta berhasil disimpan.');
     }
 
     /**

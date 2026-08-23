@@ -167,11 +167,6 @@
                 <div class="flex items-center gap-3">
                     <span class="text-[9px] font-black text-slate-400 uppercase italic tracking-[0.15em]">SYSTEM LOGIC: JADWAL_RESOURCE_V1</span>
                     <div class="flex items-center gap-2 ml-4">
-                        <span class="relative flex h-1.5 w-1.5">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
-                        </span>
-                        <span class="text-[9px] font-black text-emerald-600 uppercase tracking-widest">TERMINAL ACTIVE</span>
                     </div>
                 </div>
                 <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
