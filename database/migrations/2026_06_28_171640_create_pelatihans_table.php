@@ -11,9 +11,9 @@ return new class extends Migration
         Schema::create('pelatihans', function (Blueprint $table) {
             $table->id();
             $table->string('nama_pelatihan');
-            $table->string('spektrum_kategori'); // Pengetahuan Teknis / Pengetahuan Non Teknis
+            $table->string('jenis_pelatihan'); // 🚀 Berubah dari spektrum_kategori
             $table->foreignId('trainer_id')->constrained('trainers')->onDelete('cascade');
-            $table->json('komponen_nilai')->nullable(); // Tempat nampung array ["TUGAS","UTS"]
+            $table->json('komponen_nilai')->nullable(); 
             $table->timestamps();
         });
     }

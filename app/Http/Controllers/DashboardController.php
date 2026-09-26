@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Peserta;
 use App\Models\Trainer;
 use App\Models\Pelatihan;
+use App\Models\Feedback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -70,11 +71,25 @@ class DashboardController extends Controller
             }
         }
 
+        // ================= METRIK ANALISIS FEEDBACK =================
+        $totalFeedback = Feedback::whereMonth('created_at', $bulanAktif)
+            ->whereYear('created_at', $tahunAktif)
+            ->count();
+
+        $resolvedFeedback = Feedback::whereMonth('created_at', $bulanAktif)
+            ->whereYear('created_at', $tahunAktif)
+            ->where('status', 'resolved')
+            ->count();
+
+        $pendingFeedback = $totalFeedback - $resolvedFeedback;
+        $resolveRate = $totalFeedback > 0 ? round(($resolvedFeedback / $totalFeedback) * 100) : 100;
+
         return view('dashboard.index', compact(
             'bulanAktif', 'tahunAktif', 'totalRegistrasi', 'komposisiProgram', 
             'daysOfWeek', 'programTerpopuler', 'totalProgramTerpopuler', 'jumlahJenisProgram',
             'priaTotal', 'wanitaTotal', 'priaPercent', 'wanitaPercent',
-            'totalMentor', 'totalPelatihan', 'trainers', 'pelatihans'
+            'totalMentor', 'totalPelatihan', 'trainers', 'pelatihans',
+            'totalFeedback', 'resolvedFeedback', 'pendingFeedback', 'resolveRate'
         ));
     }
 }

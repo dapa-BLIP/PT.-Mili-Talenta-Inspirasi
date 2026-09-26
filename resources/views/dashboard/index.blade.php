@@ -20,11 +20,11 @@
          data-sun="{{ $daysOfWeek['Sunday'] ?? 0 }}"
          data-komposisi-program="{{ json_encode($komposisiProgram) }}">
         
-        <!-- HEADER TOP & ACTION BUTTONS (Dihilangkan Saat Print) -->
+        <!-- HEADER TOP & ACTION BUTTONS -->
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-8 print:hidden">
             <div>
-                <h2 class="text-2xl font-black text-slate-800 tracking-tighter uppercase italic">Executive Monthly Report</h2>
-                <p class="text-[10px] font-bold text-[#22a0f6] uppercase tracking-[0.2em]">System Overview & Data Analytics</p>
+                <h2 class="text-2xl font-black text-slate-800 tracking-tighter uppercase italic">Laporan Bulanan</h2>
+                <p class="text-[10px] font-bold text-[#22a0f6] uppercase tracking-[0.2em]">Ringkasan Sistem & Analisis Data</p>
             </div>
             
             <div class="flex flex-wrap items-center gap-4 w-full lg:w-auto">
@@ -35,7 +35,7 @@
                     
                     <select name="bulan" onchange="this.form.submit()" class="text-[10px] font-black uppercase tracking-wider border-none p-0 pr-6 text-center text-slate-700 bg-transparent focus:ring-0 focus:outline-none cursor-pointer">
                         @foreach(range(1, 12) as $m)
-                            <option value="{{ sprintf('%02d', $m) }}" {{ $bulanAktif == sprintf('%02d', $m) ? 'selected' : '' }} class="text-center">
+                            <option value="{{ sprintf('%02d', $m) }}" {{ $bulanAktif == sprintf('%02d', $m) ? 'selected' : '' }}>
                                 {{ date('F', mktime(0, 0, 0, $m, 1)) }}
                             </option>
                         @endforeach
@@ -45,7 +45,7 @@
 
                     <select name="tahun" onchange="this.form.submit()" class="text-[10px] font-black uppercase tracking-wider border-none p-0 pr-6 text-center text-slate-700 bg-transparent focus:ring-0 focus:outline-none cursor-pointer">
                         @foreach(range(date('Y'), date('Y') - 4) as $y)
-                            <option value="{{ $y }}" {{ $tahunAktif == $y ? 'selected' : '' }} class="text-center">
+                            <option value="{{ $y }}" {{ $tahunAktif == $y ? 'selected' : '' }}>
                                 {{ $y }}
                             </option>
                         @endforeach
@@ -66,48 +66,48 @@
             </div>
         </div>
 
-        <!-- HEADER KOP SURAT LAPORAN (Khusus Tampil Saat Print) -->
+        <!-- HEADER KOP SURAT LAPORAN (Khusus Cetak) -->
         <div class="hidden print:block mb-5 border-b-4 border-slate-900 pb-2">
             <div class="flex justify-between items-start">
                 <div>
                     <h1 class="text-xl font-black text-slate-900 uppercase tracking-tighter">PT MILI TALENTA INSPIRASI</h1>
-                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">EXECUTIVE MONTHLY REPORT • PORTAL SYSTEM</p>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Laporan Bulanan • PORTAL SYSTEM</p>
                 </div>
                 <div class="text-right text-[9px] font-mono text-slate-500">
-                    <p>Periode Laporan: {{ date('F', mktime(0, 0, 0, (int)$bulanAktif, 1)) }} {{ $tahunAktif }}</p>
+                    <p>Periode: {{ date('F', mktime(0, 0, 0, (int)$bulanAktif, 1)) }} {{ $tahunAktif }}</p>
                     <p>Waktu Pembuatan: {{ date('d F Y, H:i') }} WIB</p>
                 </div>
             </div>
         </div>
 
-        <!-- SUMMARY CARDS SECTION (6 KOLOM PRESISI DENGAN DATA REAL) -->
+        <!-- SUMMARY CARDS SECTION (6 KOLOM) -->
         <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-5 page-break-avoid">
-            <!-- CARD 1: TOTAL REGISTRASI -->
+            <!-- CARD 1: TOTAL PENDAFTARAN -->
             <div class="bg-white p-3.5 border border-slate-200/80 rounded-sm shadow-sm print:border-slate-300 flex flex-col justify-between">
-                <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Registrasi</p>
+                <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Pendaftaran</p>
                 <div class="flex items-baseline gap-1">
                     <span class="text-2xl font-black text-slate-800">{{ $totalRegistrasi }}</span>
-                    <span class="text-[9px] font-bold text-slate-400 uppercase">Org</span>
+                    <span class="text-[9px] font-bold text-slate-400 uppercase">Orang</span>
                 </div>
             </div>
 
-            <!-- CARD 2: TOTAL MENTOR (REAL DATA) -->
+            <!-- CARD 2: TOTAL MENTOR -->
             <div class="bg-white p-3.5 border border-slate-200/80 rounded-sm shadow-sm print:border-slate-300 flex flex-col justify-between">
                 <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Mentor</p>
                 <div class="flex items-baseline gap-1">
                     <span class="text-2xl font-black text-[#22a0f6] print:text-slate-800">
-                        {{ $totalMentor ?? (isset($trainers) ? count($trainers) : 0) }}
+                        {{ $totalMentor ?? 0 }}
                     </span>
                     <span class="text-[9px] font-bold text-slate-400 uppercase">SDM</span>
                 </div>
             </div>
 
-            <!-- CARD 3: TOTAL PELATIHAN (REAL DATA) -->
+            <!-- CARD 3: TOTAL PELATIHAN -->
             <div class="bg-white p-3.5 border border-slate-200/80 rounded-sm shadow-sm print:border-slate-300 flex flex-col justify-between">
                 <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Pelatihan</p>
                 <div class="flex items-baseline gap-1">
                     <span class="text-2xl font-black text-emerald-600 print:text-slate-800">
-                        {{ $totalPelatihan ?? (isset($pelatihans) ? count($pelatihans) : 0) }}
+                        {{ $totalPelatihan ?? 0 }}
                     </span>
                     <span class="text-[9px] font-bold text-slate-400 uppercase">Kelas</span>
                 </div>
@@ -119,7 +119,7 @@
                 <div class="text-[10px] font-black text-[#22a0f6] print:text-slate-800 uppercase leading-tight break-words my-auto">
                     {{ $programTerpopuler }}
                 </div>
-                <p class="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider mt-1">Minat ({{ $totalProgramTerpopuler }} Org)</p>
+                <p class="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider mt-1">Minat ({{ $totalProgramTerpopuler }} Peserta)</p>
             </div>
             
             <!-- CARD 5: VARIAN PROGRAM -->
@@ -127,7 +127,7 @@
                 <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Varian Program</p>
                 <div class="flex items-baseline gap-1">
                     <span class="text-2xl font-black text-slate-700 print:text-slate-800">{{ $jumlahJenisProgram }}</span>
-                    <span class="text-[9px] font-bold text-slate-400 uppercase">Klaster</span>
+                    <span class="text-[9px] font-bold text-slate-400 uppercase">Jenis</span>
                 </div>
             </div>
             
@@ -135,7 +135,7 @@
             <div class="bg-slate-800 p-3.5 rounded-sm shadow-sm print:bg-white print:border print:border-slate-300 flex flex-col justify-between" id="cell-rata-rata">
                 <p class="text-[8px] font-black text-white/50 print:text-slate-400 uppercase tracking-widest mb-1">Rata-Rata Harian</p>
                 <div class="flex items-baseline gap-1 text-white print:text-slate-800">
-                    <span class="text-2xl font-black italic">{{ number_format(($totalRegistrasi / 7), 1) }}</span>
+                    <span class="text-2xl font-black italic">{{ $totalRegistrasi > 0 ? number_format(($totalRegistrasi / 7), 1) : '0.0' }}</span>
                     <span class="text-[8.5px] font-bold text-white/40 print:text-slate-400 uppercase">Daftar/Hari</span>
                 </div>
             </div>
@@ -149,6 +149,7 @@
                 $topProgramName = $komposisiProgram->first() ? $komposisiProgram->first()->pelatihan : 'N/A';
             @endphp
             
+            <!-- KOMPOSISI PROGRAM PELATIHAN -->
             <div class="bg-white p-4 border border-slate-100 rounded-sm shadow-sm col-span-2 flex flex-row items-center gap-5 print:border-slate-300">
                 <div class="w-24 h-24 relative shrink-0 print:block">
                     <svg viewBox="0 0 36 36" class="w-full h-full rotate-[-90deg]">
@@ -161,8 +162,8 @@
                     </div>
                 </div>
                 
-                <div class="flex-grow w-full space-y-2">
-                    <h3 class="text-[9.5px] font-black text-slate-800 uppercase tracking-widest mb-1">Urutan Peminat Program (Real-time)</h3>
+                <div class="grow w-full space-y-2">
+                    <h3 class="text-[9.5px] font-black text-slate-800 uppercase tracking-widest mb-1">Peringkat Minat Program Pelatihan (Real-time)</h3>
                     
                     @forelse($komposisiProgram as $prog)
                         @php $currPercent = $grandTotal > 0 ? round(($prog->total / $grandTotal) * 100) : 0; @endphp
@@ -181,6 +182,7 @@
                 </div>
             </div>
 
+            <!-- KOMPOSISI GENDER -->
             <div class="bg-white p-4 border border-slate-100 rounded-sm shadow-sm print:border-slate-300">
                 <h3 class="text-[9.5px] font-black text-slate-800 uppercase tracking-widest mb-3">Gender Composition</h3>
                 <div class="space-y-3">
@@ -206,10 +208,11 @@
             </div>
         </div>
 
-        <!-- ACTIVITY TREND & SYSTEM AUDIT METRICS (BARU & SUPER GARANG) -->
+        <!-- ACTIVITY TREND & FEEDBACK RESOLUTION ANALYTICS -->
         <div class="grid grid-cols-2 gap-5 page-break-avoid">
             @php $maxWeekly = !empty($daysOfWeek) ? max($daysOfWeek) : 0; @endphp
             
+            <!-- AKTIVITAS MINGGUAN -->
             <div class="bg-white p-4 border border-slate-100 rounded-sm shadow-sm print:border-slate-300">
                 <h3 class="text-[9.5px] font-black text-slate-800 uppercase tracking-widest mb-3">Activity Trend (Weekly Registrations)</h3>
                 <div class="flex items-end justify-between h-20 gap-2">
@@ -229,58 +232,56 @@
                 </div>
             </div>
 
-            <!-- 🚀 REVISI TOTAL: WIDGET SYSTEM AUDIT ANALYTICS DENGAN STATISTIK KEREN -->
+            <!-- FEEDBACK & ISSUE RESOLUTION ANALYTICS (REAL DATA) -->
             <div class="bg-white p-4 border border-slate-100 rounded-sm shadow-sm print:border-slate-300 flex flex-col justify-between">
                 <div>
                     <div class="flex justify-between items-center mb-2 pb-1.5 border-b border-slate-100">
                         <div>
-                            <h3 class="text-[9.5px] font-black text-slate-800 uppercase tracking-widest leading-tight">System Audit & Operational Analytics</h3>
-                            <p class="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">Real-time Data Integrity & Capacity</p>
+                            <h3 class="text-[9.5px] font-black text-slate-800 uppercase tracking-widest leading-tight">Feedback & Issue Analytics</h3>
+                            <p class="text-[7.5px] font-bold text-slate-400 uppercase tracking-wider">Monitoring Keluhan & Saran Peserta</p>
                         </div>
-                        <span class="text-[7.5px] font-black px-1.5 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-sm uppercase font-mono">AUDIT VERIFIED</span>
+                        <span class="text-[7.5px] font-black px-1.5 py-0.5 {{ $pendingFeedback > 0 ? 'bg-amber-50 text-amber-600 border border-amber-200' : 'bg-emerald-50 text-emerald-600 border border-emerald-200' }} rounded-sm uppercase font-mono">
+                            {{ $pendingFeedback > 0 ? $pendingFeedback . ' PENDING' : 'ALL RESOLVED' }}
+                        </span>
                     </div>
-
-                    @php
-                        $totM = $totalMentor ?? (isset($trainers) ? count($trainers) : 0);
-                        $totP = $totalPelatihan ?? (isset($pelatihans) ? count($pelatihans) : 0);
-                        $rasioMentor = $totP > 0 ? round($totM / $totP, 1) : 0;
-                    @endphp
 
                     <div class="space-y-2">
                         <div class="flex justify-between items-center text-[8.5px] font-black uppercase text-slate-700 border-b border-slate-50 pb-1">
-                            <span class="text-slate-500">1. Rasio Pengampuan Mentor/Kelas:</span>
-                            <span class="text-[#22a0f6] font-mono">{{ $rasioMentor }} Mentor / Program</span>
+                            <span class="text-slate-500">1. Total Feedback Masuk:</span>
+                            <span class="text-slate-800 font-mono">{{ $totalFeedback }} Tiket</span>
                         </div>
 
                         <div class="flex justify-between items-center text-[8.5px] font-black uppercase text-slate-700 border-b border-slate-50 pb-1">
-                            <span class="text-slate-500">2. Keaktifan SDM Mentor:</span>
-                            <span class="text-emerald-600 font-mono">100% VERIFIED & ACTIVE</span>
+                            <span class="text-slate-500">2. Feedback Selesai Ditangani:</span>
+                            <span class="text-emerald-600 font-mono">{{ $resolvedFeedback }} Resolved</span>
                         </div>
 
                         <div class="flex justify-between items-center text-[8.5px] font-black uppercase text-slate-700 border-b border-slate-50 pb-1">
-                            <span class="text-slate-500">3. Filter Validasi Excel:</span>
-                            <span class="text-emerald-600 font-mono">STRICT HEADER CHECK</span>
+                            <span class="text-slate-500">3. Menunggu Solusi (Pending):</span>
+                            <span class="text-amber-600 font-mono">{{ $pendingFeedback }} Tiket</span>
                         </div>
 
                         <div class="flex justify-between items-center text-[8.5px] font-black uppercase text-slate-700">
-                            <span class="text-slate-500">4. Relasi Data JSON Nilai:</span>
-                            <span class="text-slate-800 font-mono">SYNCED & HEALTHY</span>
+                            <span class="text-slate-500">4. Tingkat Penyelesaian (Resolution Rate):</span>
+                            <span class="text-[#22a0f6] font-mono">{{ $resolveRate }}%</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[7.5px] font-black uppercase tracking-wider text-slate-500 font-mono">
                     <span class="flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
-                        Kesehatan Sistem DB:
+                        <span class="w-1.5 h-1.5 rounded-full {{ $pendingFeedback > 0 ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500' }} inline-block"></span>
+                        Status Responsivitas:
                     </span>
-                    <span class="text-emerald-700 font-black">100% OPERATIONAL</span>
+                    <span class="{{ $pendingFeedback > 0 ? 'text-amber-600' : 'text-emerald-700' }} font-black">
+                        {{ $pendingFeedback > 0 ? 'ACTION NEEDED' : 'OPTIMAL / RESOLVED' }}
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 🛠️ STYLES ENGINE CETAK LANDSCAPE AUTOMATIC -->
+    <!-- STYLES ENGINE CETAK -->
     <style>
         select, select option {
             text-align-last: center !important;
@@ -306,7 +307,7 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            .shadow-sm, .shadow-2xl {
+            .shadow-xs, .shadow-sm, .shadow-2xl {
                 box-shadow: none !important;
             }
             .page-break-avoid {

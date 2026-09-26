@@ -2,40 +2,59 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Peserta;
+use App\Http\Requests\ProfileUpdateRequest;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
 
-class PesertaController extends Controller
+class ProfileController extends Controller
 {
-    // Menampilkan daftar peserta
-    public function index()
+    /**
+     * Tampilkan form profil pengguna.
+     */
+    public function edit(Request $request): View
     {
-        // Pake latest() biar data terbaru muncul paling atas (Standar Industrial)
-        $pesertas = Peserta::latest()->get();
-        return view('peserta.index', compact('pesertas'));
+        return view('profile.edit', [
+            'user' => $request->user(),
+        ]);
     }
 
-    // Menampilkan form tambah
-    public function create()
+    /**
+     * Perbarui data profil pengguna.
+     */
+    public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        return view('peserta.create');
+        $request->user()->fill($request->validated());
+
+        if ($request->user()->isDirty('email')) {
+            $request->user()->email_verified_at = null;
+        }
+
+        $request->user()->save();
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
-    // Menyimpan data ke database
-    public function store(Request $request)
+    /**
+     * Hapus akun pengguna.
+     */
+    public function destroy(Request $request): RedirectResponse
     {
-        // 1. Validasi dengan pesan error yang rapi
-        $validated = $request->validate([
-            'nama_lengkap' => 'required|string|max:255',
-            'email'        => 'required|email|unique:pesertas,email',
-            'pelatihan'    => 'required|string',
+        $request->validateWithBag('userDeletion', [
+            'password' => ['required', 'current_password'],
         ]);
 
-        // 2. Gunakan $validated, bukan $request->all() 
-        // Ini biar user gak bisa masukin data 'admin=1' lewat inspect element
-        Peserta::create($validated);
+        $user = $request->user();
 
-        return redirect()->route('peserta.index')
-                         ->with('success', 'Peserta berhasil didaftarkan ke sistem.');
+        Auth::logout();
+
+        $user->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return Redirect::to('/');
     }
 }

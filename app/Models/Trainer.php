@@ -9,21 +9,15 @@ class Trainer extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'nama_mentor', 
-        'nidn', 
-        'ttl', 
-        'email', 
-        'kontak', 
-        'sektor_keahlian', 
-        'foto',
-        'status'
-    ];
+    // Nama tabel di database
+    protected $table = 'trainers';
 
+    // Kolom yang dapat diisi secara massal
+    protected $guarded = [];
+
+    // Relasi balik ke Pelatihan
     public function pelatihans()
     {
         return $this->hasMany(Pelatihan::class, 'trainer_id');
     }
-
-    
 }

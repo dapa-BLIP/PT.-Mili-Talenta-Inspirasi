@@ -15,11 +15,17 @@ class Peserta extends Model
         'ttl', 
         'email',
         'no_hp',
+        'perusahaan_id',
         'tempat_kerja',
         'pelatihan',
         'foto',
         'status'
     ];
+
+    public function perusahaan()
+    {
+        return $this->belongsTo(Perusahaan::class, 'perusahaan_id');
+    }
 
     public function nilai()
     {

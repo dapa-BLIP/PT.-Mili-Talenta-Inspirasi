@@ -1,13 +1,17 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController; 
 use App\Http\Controllers\PesertaController;
 use App\Http\Controllers\NilaiController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\FeedbackController;
-use App\Http\Controllers\AcademicController; 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PelatihanController;
+use App\Http\Controllers\MentorController;
+use App\Http\Controllers\MateriController; 
+use App\Http\Controllers\KategoriPelatihanController;
+use App\Http\Controllers\PerusahaanController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -25,18 +29,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // JALUR AJAX UTAMA MATRIX GRADING
-    Route::get('/ajax/get-materi', [NilaiController::class, 'getMateriBySektor'])->name('nilai.getMateri');
+    // AJAX GRADING MATRIX & CHECKLIST PESERTA
+    Route::get('/ajax/get-materi', [NilaiController::class, 'getMateriByJenis'])->name('nilai.getMateri');
     Route::get('/ajax/get-nilai-existing', [NilaiController::class, 'getNilaiExisting'])->name('nilai.getNilaiExisting');
+    Route::get('/ajax/peserta-get-materi', [PesertaController::class, 'getMateriByJenis'])->name('peserta.getMateri');
 
-    // 3. PESERTA
+    // 3. PESERTA (ROOT RESOURCE)
     Route::get('peserta/export', [PesertaController::class, 'export'])->name('peserta.export');
     Route::post('peserta/import', [PesertaController::class, 'import'])->name('peserta.import');
     Route::patch('peserta/{id}/status', [PesertaController::class, 'updateStatus'])->name('peserta.updateStatus');
     Route::resource('peserta', PesertaController::class);
     
-    // 4. KELOLA NILAI MATRIX
+    // 4. MANAJEMEN PESERTA (PERUSAHAAN & NILAI)
     Route::prefix('manajemen-peserta')->group(function () {
+        Route::resource('perusahaan', PerusahaanController::class);
+
         Route::get('/nilai', [NilaiController::class, 'index'])->name('nilai.index');
         Route::post('/nilai/store', [NilaiController::class, 'store'])->name('nilai.store');
         Route::get('/nilai/export', [NilaiController::class, 'export'])->name('nilai.export');
@@ -46,21 +53,43 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // 5. JADWAL
     Route::resource('jadwal', JadwalController::class);
 
-    // 6. ACADEMIC MASTER HUB
-    Route::get('academic-master', [AcademicController::class, 'index'])->name('academic.index');
+    // 6. MASTER AKADEMIK (MODULAR CONTROLLERS)
     Route::prefix('academic-master')->name('academic.')->group(function () {
-        Route::post('/mentor', [AcademicController::class, 'storeTrainer'])->name('storeTrainer');
-        Route::put('/mentor/{id}', [AcademicController::class, 'updateTrainer'])->name('updateTrainer'); 
-        Route::delete('/mentor/{id}', [AcademicController::class, 'destroyTrainer'])->name('destroyTrainer');
-        
-        Route::post('/pelatihan', [AcademicController::class, 'storePelatihan'])->name('storePelatihan');
-        Route::put('/pelatihan/{id}', [AcademicController::class, 'updatePelatihan'])->name('updatePelatihan');
-        Route::delete('/pelatihan/{id}', [AcademicController::class, 'destroyPelatihan'])->name('destroyPelatihan');
+        Route::get('/', function() { return redirect()->route('academic.pelatihan.index'); })->name('index');
 
-        Route::get('/export-pelatihan', [AcademicController::class, 'exportPelatihan'])->name('exportPelatihan');
-        Route::get('/export-mentor', [AcademicController::class, 'exportMentor'])->name('exportMentor');
-        Route::post('/import-pelatihan', [AcademicController::class, 'importPelatihan'])->name('importPelatihan');
-        Route::post('/import-mentor', [AcademicController::class, 'importMentor'])->name('importMentor');
+        // Submenu: Kelola Kelas Pelatihan (PelatihanController)
+        Route::get('/pelatihan', [PelatihanController::class, 'index'])->name('pelatihan.index');
+        Route::post('/pelatihan', [PelatihanController::class, 'store'])->name('storePelatihan');
+        Route::put('/pelatihan/{id}', [PelatihanController::class, 'update'])->name('updatePelatihan');
+        Route::delete('/pelatihan/{id}', [PelatihanController::class, 'destroy'])->name('destroyPelatihan');
+        Route::get('/export-pelatihan', [PelatihanController::class, 'export'])->name('exportPelatihan');
+        Route::post('/import-pelatihan', [PelatihanController::class, 'import'])->name('importPelatihan');
+        Route::get('/template-pelatihan', [PelatihanController::class, 'template'])->name('templatePelatihan');
+
+        // Submenu: Kelola Mentor / Trainer (MentorController)
+        Route::get('/mentor', [MentorController::class, 'index'])->name('mentor.index');
+        Route::post('/mentor', [MentorController::class, 'store'])->name('storeTrainer');
+        Route::put('/mentor/{id}', [MentorController::class, 'update'])->name('updateTrainer'); 
+        Route::delete('/mentor/{id}', [MentorController::class, 'destroy'])->name('destroyTrainer');
+        Route::get('/export-mentor', [MentorController::class, 'export'])->name('exportMentor');
+        Route::post('/import-mentor', [MentorController::class, 'import'])->name('importMentor');
+        Route::get('/template-mentor', [MentorController::class, 'template'])->name('templateMentor');
+
+        // Submenu: Bank Materi (MateriController)
+        Route::get('/materi', [MateriController::class, 'index'])->name('materi.index');
+        Route::post('/materi', [MateriController::class, 'store'])->name('storeMateri');
+        Route::put('/materi/{id}', [MateriController::class, 'update'])->name('updateMateri');
+        Route::delete('/materi/{id}', [MateriController::class, 'destroy'])->name('destroyMateri');
+        // Alias route agar tidak bentrok jika view memakai format materi.*
+        Route::post('/materi/save', [MateriController::class, 'store'])->name('materi.store');
+        Route::delete('/materi/{id}/delete', [MateriController::class, 'destroy'])->name('materi.destroy');
+
+        // Submenu: Modul / Program Pelatihan (KategoriPelatihanController)
+        Route::post('/kategori-pelatihan', [KategoriPelatihanController::class, 'store'])->name('kategori.store');
+        Route::delete('/kategori-pelatihan/{id}', [KategoriPelatihanController::class, 'destroy'])->name('kategori.destroy');
+        // Alias route untuk kompatibilitas form view
+        Route::post('/kategori-pelatihan/simpan', [KategoriPelatihanController::class, 'store'])->name('kategori-pelatihans.store');
+        Route::delete('/kategori-pelatihan/{id}/hapus', [KategoriPelatihanController::class, 'destroy'])->name('kategori-pelatihans.destroy');
     });
 
     // 7. FEEDBACK

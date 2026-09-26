@@ -9,23 +9,28 @@ class Pelatihan extends Model
 {
     use HasFactory;
 
+    protected $table = 'pelatihans';
+
     protected $fillable = [
-        'nama_pelatihan', 
-        'spektrum_kategori', 
-        'trainer_id', 
-        'komponen_nilai'
+    'nama_pelatihan',
+    'jenis_pelatihan',
+    'trainer_id',
+    'komponen_nilai',
+    'materi_ids',
     ];
 
-    protected $casts = [
-        'komponen_nilai' => 'array' // Otomatis mengubah JSON di DB menjadi array PHP
+protected $casts = [
+    'komponen_nilai' => 'array',
+    'materi_ids' => 'array',
     ];
 
-    /**
-     * 🚀 SINKRONISASI: Relasi ke Master Mentor
-     * Menggunakan model Trainer (tabel trainers) namun dengan nama method 'mentor'
-     */
     public function mentor()
     {
         return $this->belongsTo(Trainer::class, 'trainer_id');
+    }
+
+    public function nilais()
+    {
+        return $this->hasMany(Nilai::class, 'pelatihan_id');
     }
 }

@@ -11,13 +11,13 @@ return new class extends Migration
         Schema::create('trainers', function (Blueprint $table) {
             $table->id();
             $table->string('nidn', 50)->unique()->nullable(); 
-            $table->string('nama_mentor'); // 🚀 SINKRON: Menggunakan nama_mentor
+            $table->string('nama_mentor'); 
             $table->string('ttl')->nullable(); 
             $table->string('email')->unique()->nullable(); 
-            $table->string('kontak', 20)->nullable(); 
-            $table->string('sektor_keahlian'); 
-            $table->string('foto')->nullable(); // 🚀 TAMBAHAN: Menyimpan path foto profil mentor
-            $table->string('status')->default('AKTIF'); 
+            $table->string('kontak', 20)->nullable();
+            $table->string('program_pelatihan');
+            $table->string('foto')->nullable(); 
+            $table->string('status', 20)->default('AKTIF'); 
             $table->timestamps();
         });
     }
