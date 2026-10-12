@@ -233,8 +233,6 @@
             <div class="pt-2 flex justify-end">
                 <button type="button" onclick="document.getElementById('modalBlockedDelete').classList.add('hidden')" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-[9.5px] font-black uppercase tracking-widest rounded-xs cursor-pointer border-none transition-colors">
                     Saya Mengerti
-rsor-pointer">
-                    MENGERTI
                 </button>
             </div>
         </div>
