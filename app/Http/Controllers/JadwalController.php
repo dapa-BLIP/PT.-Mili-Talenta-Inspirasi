@@ -19,24 +19,21 @@ class JadwalController extends Controller
 
         $query = Jadwal::with('trainer');
 
-        // 1. Ambil input filter date
+        // 1. Ambil input filter date (Menggunakan logika interval overlap agar jadwal yang sedang berjalan tetap terjaring)
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        // 🛠️ FIX LOGIKA TANGGAL: Jika start_date dan end_date diisi hari yang sama, 
-        // kita longgarkan query database agar jadwal yang selesai hari ini tetap lolos ditarik.
-        if ($request->filled('start_date') && $request->filled('end_date') && $startDate === $endDate) {
-            $query->where(function($q) use ($startDate) {
-                $q->where('tanggal_mulai', '<=', $startDate)
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->where(function($q) use ($startDate, $endDate) {
+                $q->where('tanggal_mulai', '<=', $endDate)
                   ->where('tanggal_selesai', '>=', $startDate);
             });
         } else {
-            // Logika filter rentang hari normal (jika berbeda hari)
             if ($request->filled('start_date')) {
-                $query->where('tanggal_mulai', '>=', $startDate);
+                $query->where('tanggal_selesai', '>=', $startDate);
             }
             if ($request->filled('end_date')) {
-                $query->where('tanggal_selesai', '<=', $endDate);
+                $query->where('tanggal_mulai', '<=', $endDate);
             }
         }
 

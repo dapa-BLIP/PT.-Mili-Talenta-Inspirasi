@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'feedback' => [
+        'google_form_url' => env('FEEDBACK_GOOGLE_FORM_URL', 'https://docs.google.com/forms/'),
+    ],
+
 ];

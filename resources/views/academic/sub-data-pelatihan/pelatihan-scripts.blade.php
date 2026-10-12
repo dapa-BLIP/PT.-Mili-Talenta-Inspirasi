@@ -9,6 +9,7 @@
             'modalEditPelatihan', 
             'modalImportPelatihan', 
             'modalSecureDelete', 
+            'modalWarningDeletePelatihan',
             'modalModulPelatihan', 
             'modalBankMateri'
         ];
@@ -403,15 +404,21 @@
     }
 
     // =========================================================================
-    // 5. MODAL VERIFIKASI HAPUS AMAN
+    // 5. MODAL VERIFIKASI HAPUS AMAN (LANDSCAPE)
     // =========================================================================
-    function mintaVerifikasiHapus(deleteUrl, namaTarget) {
+    function mintaVerifikasiHapus(deleteUrl, namaTarget, jenis = '-', mentor = 'Belum Ditunjuk') {
         targetHapusNama = namaTarget.trim().toUpperCase();
         const form = document.getElementById('formSecureDelete');
         if (form) form.action = deleteUrl;
 
         if (document.getElementById('delete-target-name')) {
             document.getElementById('delete-target-name').textContent = targetHapusNama;
+        }
+        if (document.getElementById('delete-preview-jenis')) {
+            document.getElementById('delete-preview-jenis').textContent = jenis;
+        }
+        if (document.getElementById('delete-preview-mentor')) {
+            document.getElementById('delete-preview-mentor').textContent = mentor;
         }
         if (document.getElementById('input-delete-verify')) {
             document.getElementById('input-delete-verify').value = '';
@@ -433,10 +440,42 @@
 
         if (valUser === targetHapusNama && targetHapusNama !== '') {
             btn.disabled = false;
-            btn.className = "w-2/3 bg-rose-600 hover:bg-rose-700 text-white py-2.5 text-xs font-black uppercase rounded-sm cursor-pointer shadow-xs transition-colors";
+            btn.className = "w-2/3 bg-rose-600 hover:bg-rose-700 text-white py-2.5 text-xs font-black uppercase rounded-sm cursor-pointer shadow-xs transition-colors border-none";
         } else {
             btn.disabled = true;
-            btn.className = "w-2/3 bg-slate-200 text-slate-400 py-2.5 text-xs font-black uppercase rounded-sm cursor-not-allowed";
+            btn.className = "w-2/3 bg-slate-200 text-slate-400 py-2.5 text-xs font-black uppercase rounded-sm cursor-not-allowed transition-colors border-none";
+        }
+    }
+
+    // Handler Tombol Hapus: Cek Relasi Peserta & Nilai (Landscape Split-View)
+    function handleHapusPelatihan(btn) {
+        const data = btn.dataset;
+        const hasRelations = data.hasRelations === '1';
+        const pesertaCount = parseInt(data.pesertaCount || 0);
+        const nilaiCount = parseInt(data.nilaiCount || 0);
+        const nama = data.nama || 'KELAS PELATIHAN';
+        const jenis = data.jenis || '-';
+        const mentor = data.mentor || 'Belum Ditunjuk';
+        const deleteUrl = data.url || '';
+
+        if (hasRelations) {
+            // Tampilkan Modal Peringatan (Terkunci - Landscape Split-View)
+            const targetEl = document.getElementById('warning-pelatihan-target');
+            const jenisEl = document.getElementById('warning-jenis-target');
+            const mentorEl = document.getElementById('warning-mentor-target');
+            const pesertaEl = document.getElementById('warning-peserta-count');
+            const nilaiEl = document.getElementById('warning-nilai-count');
+
+            if (targetEl) targetEl.textContent = nama;
+            if (jenisEl) jenisEl.textContent = jenis;
+            if (mentorEl) mentorEl.textContent = mentor;
+            if (pesertaEl) pesertaEl.textContent = pesertaCount + ' PESERTA';
+            if (nilaiEl) nilaiEl.textContent = nilaiCount + ' RECORD NILAI';
+
+            document.getElementById('modalWarningDeletePelatihan')?.classList.remove('hidden');
+        } else {
+            // Belum ada relasi peserta atau nilai, buka modal konfirmasi hapus landscape
+            mintaVerifikasiHapus(deleteUrl, nama, jenis, mentor);
         }
     }
 </script>

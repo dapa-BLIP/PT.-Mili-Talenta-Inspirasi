@@ -50,7 +50,12 @@ class DashboardController extends Controller
         $priaPercent = $totalGender > 0 ? round(($priaTotal / $totalGender) * 100) : 0;
         $wanitaPercent = $totalGender > 0 ? round(($wanitaTotal / $totalGender) * 100) : 0;
 
-        $weeklyTrendRaw = Peserta::select(DB::raw("strftime('%w', created_at) as day_index"), DB::raw('count(*) as total'))
+        $driver = DB::getDriverName();
+        $dayExpression = $driver === 'sqlite'
+            ? "strftime('%w', created_at)"
+            : "(DAYOFWEEK(created_at) - 1)";
+
+        $weeklyTrendRaw = Peserta::select(DB::raw("{$dayExpression} as day_index"), DB::raw('count(*) as total'))
             ->whereMonth('created_at', $bulanAktif)
             ->whereYear('created_at', $tahunAktif)
             ->groupBy('day_index')

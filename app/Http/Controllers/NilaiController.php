@@ -6,6 +6,7 @@ use App\Models\Trainer;
 use App\Models\Pelatihan;
 use App\Models\Peserta;
 use App\Models\Nilai;
+use App\Models\KategoriPelatihan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -17,17 +18,24 @@ class NilaiController extends Controller
 {
     public function index()
     {
-        $jenisList = Pelatihan::whereNotNull('jenis_pelatihan')
-            ->where('jenis_pelatihan', '!=', '')
-            ->distinct()
-            ->pluck('jenis_pelatihan')
-            ->toArray();
+        $kategoriPrograms = KategoriPelatihan::orderBy('nama_kategori', 'asc')->pluck('nama_kategori')->toArray();
+        $pelatihanPrograms = Pelatihan::whereNotNull('jenis_pelatihan')->where('jenis_pelatihan', '!=', '')->distinct()->pluck('jenis_pelatihan')->toArray();
+        $programs = array_values(array_unique(array_filter(array_merge($kategoriPrograms, $pelatihanPrograms))));
+        sort($programs);
+
+        $mentors = Trainer::where('status', 'AKTIF')
+            ->orderBy('nama_mentor', 'asc')
+            ->get();
+
+        $pelatihans = Pelatihan::with('mentor')
+            ->orderBy('nama_pelatihan', 'asc')
+            ->get();
 
         $pesertas = Peserta::select('id', 'nama_lengkap', 'pelatihan', 'tempat_kerja', 'gender', 'status')
             ->orderBy('nama_lengkap', 'asc')
             ->get();
 
-        return view('nilai.index', compact('jenisList', 'pesertas'));
+        return view('nilai.index', compact('programs', 'mentors', 'pelatihans', 'pesertas'));
     }
 
     public function getNilaiExisting(Request $request)
@@ -103,7 +111,7 @@ class NilaiController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Parameter input matrix tidak lengkap atau tidak valid!'
+                'message' => 'Kolom penilaian tidak lengkap atau tidak valid!'
             ], 422);
         }
 
@@ -164,29 +172,35 @@ class NilaiController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Semua data nilai matriks berhasil dibukukan.'
+                'message' => 'Semua data nilai berhasil disimpan.'
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Kesalahan Sistem SQL: ' . $e->getMessage()
+                'message' => 'Data gagal di simpan.' . $e->getMessage()
             ], 500);
         }
     }
 
     public function export(Request $request)
     {
-        $request->validate([
-            'jenis_pelatihan' => 'required',
-            'pelatihan_id'    => 'required',
-        ]);
-
-        $jenis       = $request->get('jenis_pelatihan');
         $pelatihanId = $request->get('pelatihan_id');
-        $namaFile    = 'Template_Matrix_Nilai_' . str_replace(' ', '_', strtoupper($jenis)) . '_' . now()->format('dmY_His') . '.xlsx';
 
-        return Excel::download(new NilaiExport($pelatihanId, $jenis), $namaFile);
+        if ($pelatihanId) {
+            $pelatihan = Pelatihan::find($pelatihanId);
+        } else {
+            $pelatihan = Pelatihan::first();
+        }
+
+        if (!$pelatihan) {
+            return redirect()->back()->with('error', 'Data kelas pelatihan belum tersedia untuk di-export.');
+        }
+
+        $namaClean = str_replace(' ', '_', strtoupper($pelatihan->nama_pelatihan));
+        $namaFile  = 'Template_Matrix_Nilai_' . $namaClean . '_' . now()->format('dmY_His') . '.xlsx';
+
+        return Excel::download(new NilaiExport($pelatihan->id, $pelatihan->nama_pelatihan), $namaFile);
     }
     
     public function import(Request $request)
@@ -203,7 +217,7 @@ class NilaiController extends Controller
 
             Excel::import(new NilaiImport($pelatihanId, $trainerId), $request->file('file_excel'));
 
-            return redirect()->back()->with('success', 'EXCEL ENGINE SUCCESS: Berkas nilai excel berhasil di-import masuk ke kelas.');
+            return redirect()->back()->with('success', 'EXCEL ENGINE SUCCESS: Berkas nilai excel berhasil di-import.');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => 'Gagal membaca berkas Excel. Detail: ' . $e->getMessage()]);
         }

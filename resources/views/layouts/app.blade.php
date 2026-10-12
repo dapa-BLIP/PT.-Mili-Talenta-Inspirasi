@@ -7,7 +7,13 @@
 
     <title>Portal System | PT Mili Talenta Inspirasi</title>
     
-    <link href="https://fonts.bunny.net/css?family=figtree:400,600,800&display=swap" rel="stylesheet" />
+    <!-- TYPOGRAPHY: PLUS JAKARTA SANS (CLEAN & MODERN ENTERPRISE) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800|figtree:400,600,800&display=swap" rel="stylesheet" />
     <style> [x-cloak] { display: none !important; } </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -141,12 +147,12 @@
         <!-- ================================================================= -->
         <main class="flex-1 h-screen overflow-hidden flex flex-col bg-[#f8fafc]">
             
-            <!-- HEADER APP (Z-10 DIHAPUS) -->
+            <!-- HEADER APP (DINAMIS & RESPONSIF DI MOBILE) -->
             @if (isset($header))
-                <header class="bg-white border-b border-slate-200 px-3 sm:px-6 lg:px-8 h-12 sm:h-14 flex items-center gap-2 sm:gap-3 shadow-xs shrink-0">
+                <header class="bg-white border-b border-slate-200 px-3 sm:px-6 lg:px-8 min-h-12 sm:min-h-14 py-2 sm:py-0 flex items-center gap-2 sm:gap-3 shadow-xs shrink-0">
                     <button type="button" 
                             @click="openMobileSidebar = true" 
-                            class="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xs md:hidden cursor-pointer shrink-0 transition-colors" 
+                            class="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xs md:hidden cursor-pointer shrink-0 transition-colors self-start sm:self-center mt-0.5 sm:mt-0" 
                             title="Buka Menu Navigasi">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
@@ -156,8 +162,8 @@
                     <div class="flex-1 min-w-0">{{ $header }}</div>
                 </header>
             @else
-                <!-- Fallback Header Mobile (Z-10 DIHAPUS) -->
-                <header class="md:hidden bg-white border-b border-slate-200 px-3 h-12 flex items-center gap-2 shadow-xs shrink-0">
+                <!-- Fallback Header Mobile -->
+                <header class="md:hidden bg-white border-b border-slate-200 px-3 min-h-12 py-2 flex items-center gap-2 shadow-xs shrink-0">
                     <button type="button" 
                             @click="openMobileSidebar = true" 
                             class="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xs cursor-pointer shrink-0 transition-colors" 

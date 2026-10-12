@@ -1,7 +1,7 @@
 <!-- ========================================================================= -->
 <!-- MODAL DETAIL MENTOR (3D FLIP LANDSCAPE CARD - STATIC BACKDROP)            -->
 <!-- ========================================================================= -->
-<div id="modalDetailMentor" class="fixed inset-0 bg-slate-900/50 z-[9999] hidden flex items-center justify-center p-3 sm:p-4 print:hidden select-none overflow-y-auto">
+<div id="modalDetailMentor" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] hidden flex items-center justify-center p-3 sm:p-4 print:hidden select-none overflow-y-auto">
     
     <!-- Backdrop Statis -->
     <div class="fixed inset-0"></div>

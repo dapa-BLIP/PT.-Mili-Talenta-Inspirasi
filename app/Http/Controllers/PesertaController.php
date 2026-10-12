@@ -6,6 +6,7 @@ use App\Models\Peserta;
 use App\Models\Perusahaan;
 use App\Models\Pelatihan;
 use App\Models\Materi;
+use App\Models\KategoriPelatihan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
@@ -57,24 +58,29 @@ class PesertaController extends Controller
      */
     public function index(Request $request)
     {
-    // Cukup panggil with('perusahaan') saja
-    $pesertas = Peserta::with('perusahaan')
-        ->when($request->search, function ($q) use ($request) {
-            $q->where(function ($query) use ($request) {
-                $query->where('nama_lengkap', 'like', "%{$request->search}%")
-                      ->orWhere('email', 'like', "%{$request->search}%")
-                      ->orWhere('tempat_kerja', 'like', "%{$request->search}%");
-            });
-        })
-        ->when($request->pelatihan, fn($q) => $q->where('pelatihan', $request->pelatihan))
-        ->when($request->perusahaan_id, fn($q) => $q->where('perusahaan_id', $request->perusahaan_id))
-        ->orderBy('id', 'asc')
-        ->get();
+        $pesertas = Peserta::with(['perusahaan', 'nilais.pelatihan'])
+            ->when($request->search, function ($q) use ($request) {
+                $q->where(function ($query) use ($request) {
+                    $query->where('nama_lengkap', 'like', "%{$request->search}%")
+                          ->orWhere('email', 'like', "%{$request->search}%")
+                          ->orWhere('tempat_kerja', 'like', "%{$request->search}%");
+                });
+            })
+            ->when($request->pelatihan, fn($q) => $q->where('pelatihan', $request->pelatihan))
+            ->when($request->perusahaan_id, fn($q) => $q->where('perusahaan_id', $request->perusahaan_id))
+            ->orderBy('id', 'asc')
+            ->get();
 
-    $perusahaans = Perusahaan::where('status', 'AKTIF')->orderBy('nama_perusahaan', 'asc')->get();
-    $pelatihans = Pelatihan::orderBy('nama_pelatihan', 'asc')->get();
+        $perusahaans = Perusahaan::where('status', 'AKTIF')->orderBy('nama_perusahaan', 'asc')->get();
 
-    return view('peserta.index', compact('pesertas', 'perusahaans', 'pelatihans'));
+        $kategoriPrograms = KategoriPelatihan::orderBy('nama_kategori', 'asc')->pluck('nama_kategori')->toArray();
+        $pelatihanPrograms = Pelatihan::whereNotNull('jenis_pelatihan')->where('jenis_pelatihan', '!=', '')->distinct()->pluck('jenis_pelatihan')->toArray();
+        $programs = array_values(array_unique(array_filter(array_merge($kategoriPrograms, $pelatihanPrograms))));
+        sort($programs);
+
+        $pelatihans = Pelatihan::with('mentor')->orderBy('nama_pelatihan', 'asc')->get();
+
+        return view('peserta.index', compact('pesertas', 'perusahaans', 'pelatihans', 'programs'));
     }
 
     /**
@@ -83,9 +89,19 @@ class PesertaController extends Controller
     public function create()
     {
         $perusahaans = Perusahaan::where('status', 'AKTIF')->orderBy('nama_perusahaan', 'asc')->get();
-        $pelatihans = Pelatihan::orderBy('nama_pelatihan', 'asc')->get();
 
-        return view('peserta.create', compact('perusahaans', 'pelatihans'));
+        $kategoriPrograms = KategoriPelatihan::orderBy('nama_kategori', 'asc')->pluck('nama_kategori')->toArray();
+        $pelatihanPrograms = Pelatihan::whereNotNull('jenis_pelatihan')->where('jenis_pelatihan', '!=', '')->distinct()->pluck('jenis_pelatihan')->toArray();
+        $programs = array_values(array_unique(array_filter(array_merge($kategoriPrograms, $pelatihanPrograms))));
+        sort($programs);
+
+        $pelatihans = Pelatihan::with('mentor')->orderBy('nama_pelatihan', 'asc')->get();
+
+        if (view()->exists('peserta.sub-data-peserta.create')) {
+            return view('peserta.sub-data-peserta.create', compact('perusahaans', 'pelatihans', 'programs'));
+        }
+
+        return view('peserta.create', compact('perusahaans', 'pelatihans', 'programs'));
     }
 
     /**
@@ -133,11 +149,21 @@ class PesertaController extends Controller
      */
     public function edit($id)
     {
-        $peserta = Peserta::with('materis')->findOrFail($id);
+        $peserta = Peserta::with(['materis', 'nilais.pelatihan'])->findOrFail($id);
         $perusahaans = Perusahaan::where('status', 'AKTIF')->orderBy('nama_perusahaan', 'asc')->get();
-        $pelatihans = Pelatihan::orderBy('nama_pelatihan', 'asc')->get();
 
-        return view('peserta.edit', compact('peserta', 'perusahaans', 'pelatihans'));
+        $kategoriPrograms = KategoriPelatihan::orderBy('nama_kategori', 'asc')->pluck('nama_kategori')->toArray();
+        $pelatihanPrograms = Pelatihan::whereNotNull('jenis_pelatihan')->where('jenis_pelatihan', '!=', '')->distinct()->pluck('jenis_pelatihan')->toArray();
+        $programs = array_values(array_unique(array_filter(array_merge($kategoriPrograms, $pelatihanPrograms))));
+        sort($programs);
+
+        $pelatihans = Pelatihan::with('mentor')->orderBy('nama_pelatihan', 'asc')->get();
+
+        if (view()->exists('peserta.sub-data-peserta.edit')) {
+            return view('peserta.sub-data-peserta.edit', compact('peserta', 'perusahaans', 'pelatihans', 'programs'));
+        }
+
+        return view('peserta.edit', compact('peserta', 'perusahaans', 'pelatihans', 'programs'));
     }
 
     /**
@@ -147,6 +173,29 @@ class PesertaController extends Controller
     {
         $peserta = Peserta::findOrFail($id);
         $this->validatePeserta($request, $peserta->id);
+
+        // Validasi: Cek apakah program pelatihan diubah & apakah peserta sudah memiliki nilai di program sebelumnya
+        $newProgram = trim((string)$request->pelatihan);
+        $oldProgram = trim((string)$peserta->pelatihan);
+
+        if (strcasecmp($newProgram, $oldProgram) !== 0) {
+            if ($peserta->hasNilaiInProgram($oldProgram)) {
+                $warningMsg = "Peserta memiliki nilai di program \"{$oldProgram}\".";
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $warningMsg,
+                        'errors'  => ['pelatihan' => [$warningMsg]]
+                    ], 422);
+                }
+
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['pelatihan' => $warningMsg])
+                    ->with('error', $warningMsg);
+            }
+        }
 
         $tempat = $request->input('tempat_lahir', 'Bekasi');
         $tanggal = $request->input('tanggal_lahir') ? date('d-m-Y', strtotime($request->tanggal_lahir)) : date('d-m-Y');
@@ -186,6 +235,30 @@ class PesertaController extends Controller
         }
 
         return redirect()->route('peserta.index')->with('success', 'Perubahan data peserta & materi berhasil disimpan.');
+    }
+
+    /**
+     * Endpoint AJAX: Cek apakah peserta memiliki nilai di program tertentu
+     */
+    public function checkNilaiPeserta(Request $request)
+    {
+        $pesertaId = $request->query('peserta_id');
+        $peserta   = Peserta::find($pesertaId);
+
+        if (!$peserta) {
+            return response()->json([
+                'has_nilai' => false,
+                'program'   => null,
+            ]);
+        }
+
+        $program = $request->query('program', $peserta->pelatihan);
+        $hasNilai = $peserta->hasNilaiInProgram($program);
+
+        return response()->json([
+            'has_nilai' => $hasNilai,
+            'program'   => $peserta->pelatihan,
+        ]);
     }
 
     /**

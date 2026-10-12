@@ -35,7 +35,28 @@ class NilaiExport implements FromCollection, WithHeadings, WithMapping, WithStyl
 
     public function collection()
     {
-        return Peserta::where('pelatihan', $this->sektor)->orderBy('nama_lengkap', 'asc')->get();
+        $pelatihan = Pelatihan::find($this->pelatihanId);
+        $namaPelatihan = $pelatihan ? $pelatihan->nama_pelatihan : '';
+
+        $query = Peserta::query();
+        if ($namaPelatihan || $this->sektor) {
+            $query->where(function ($q) use ($namaPelatihan) {
+                if ($namaPelatihan) {
+                    $q->where('pelatihan', 'like', "%{$namaPelatihan}%");
+                }
+                if ($this->sektor) {
+                    $q->orWhere('pelatihan', 'like', "%{$this->sektor}%");
+                }
+            });
+        }
+
+        $results = $query->orderBy('nama_lengkap', 'asc')->get();
+
+        if ($results->isEmpty()) {
+            $results = Peserta::orderBy('nama_lengkap', 'asc')->get();
+        }
+
+        return $results;
     }
 
     public function startCell(): string
@@ -45,7 +66,7 @@ class NilaiExport implements FromCollection, WithHeadings, WithMapping, WithStyl
 
     public function headings(): array
     {
-        $headers = ['NO.', 'NAMA PESERTA'];
+        $headers = ['ID PESERTA', 'NO.', 'NAMA PESERTA'];
         foreach ($this->komponenNilai as $komponen) {
             $headers[] = strtoupper(str_replace('_', ' ', $komponen));
         }
@@ -62,6 +83,7 @@ class NilaiExport implements FromCollection, WithHeadings, WithMapping, WithStyl
         $subScores = $nilaiExisting && is_array($nilaiExisting->scores) ? $nilaiExisting->scores : [];
 
         $output = [
+            $row->id,
             sprintf('%03d', $rowNumber),
             strtoupper($row->nama_lengkap)
         ];
@@ -131,9 +153,12 @@ class NilaiExport implements FromCollection, WithHeadings, WithMapping, WithStyl
         for ($row = 9; $row <= $highestRow; $row++) {
             $sheet->getRowDimension($row)->setRowHeight(20);
             $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('B' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-            $sheet->getStyle('C' . $row . ':' . $highestColumn . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle($highestColumn . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+            $sheet->getStyle('B' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('C' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+            if ($highestColumn > 'C') {
+                $sheet->getStyle('D' . $row . ':' . $highestColumn . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle($highestColumn . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+            }
         }
 
         // --- Solid Hitam Border Tabel ---
@@ -147,13 +172,18 @@ class NilaiExport implements FromCollection, WithHeadings, WithMapping, WithStyl
             ],
         ]);
 
-        // --- 🛠️ LOCK UKURAN LEBAR KOLOM SECARA MANUAL (ANTI MELAR GAIB) ---
-        $sheet->getColumnDimension('A')->setWidth(16);   // NO kembali kecil singset premium
-        $sheet->getColumnDimension('B')->setWidth(35);  // Nama Peserta dapet space lega rapi
+        // --- 🛠️ LOCK UKURAN LEBAR KOLOM SECARA MANUAL ---
+        $sheet->getColumnDimension('A')->setWidth(12);   // ID PESERTA
+        $sheet->getColumnDimension('B')->setWidth(8);    // NO.
+        $sheet->getColumnDimension('C')->setWidth(35);   // NAMA PESERTA
         
-        // Loop manual untuk set lebar kolom nilai dinamis (C, D, E dst) sampai kolom Catatan paling akhir
-        for ($col = 'C'; $col <= $highestColumn; $col++) {
-            $sheet->getColumnDimension($col)->setWidth(18);
+        // Loop manual untuk set lebar kolom nilai dinamis (D, E dst) sampai kolom Catatan paling akhir
+        for ($col = 'D'; $col <= $highestColumn; $col++) {
+            if ($col === $highestColumn) {
+                $sheet->getColumnDimension($col)->setWidth(28); // CATATAN
+            } else {
+                $sheet->getColumnDimension($col)->setWidth(16); // NILAI
+            }
         }
 
         return [];

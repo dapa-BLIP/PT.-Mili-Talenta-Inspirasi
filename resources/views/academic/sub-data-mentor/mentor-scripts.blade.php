@@ -119,6 +119,9 @@
     function bukaModalDetailMentor(data, fotoUrl) {
         const modal = document.getElementById('modalDetailMentor');
         if (!modal) return;
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
 
         if (document.getElementById('detail_mentor_nama')) document.getElementById('detail_mentor_nama').textContent = data.nama_mentor || '-';
         if (document.getElementById('detail_mentor_program')) document.getElementById('detail_mentor_program').textContent = data.program_pelatihan || '-';
@@ -247,7 +250,25 @@
             document.getElementById('edit_kontak').value = data.kontak || '';
         }
 
-        if (document.getElementById('edit_program_pelatihan')) document.getElementById('edit_program_pelatihan').value = data.program_pelatihan || 'Pelatihan Teknis';
+        if (document.getElementById('edit_program_pelatihan')) {
+            const sel = document.getElementById('edit_program_pelatihan');
+            const val = (data.program_pelatihan || '').trim();
+            let exists = false;
+            for (let i = 0; i < sel.options.length; i++) {
+                if (sel.options[i].value.toUpperCase() === val.toUpperCase()) {
+                    sel.selectedIndex = i;
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists && val !== '') {
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.textContent = val.toUpperCase();
+                sel.appendChild(opt);
+                sel.value = val;
+            }
+        }
         if (document.getElementById('edit_status')) document.getElementById('edit_status').value = data.status || 'AKTIF';
 
         modal.classList.remove('hidden');

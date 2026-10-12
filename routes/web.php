@@ -33,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/ajax/get-materi', [NilaiController::class, 'getMateriByJenis'])->name('nilai.getMateri');
     Route::get('/ajax/get-nilai-existing', [NilaiController::class, 'getNilaiExisting'])->name('nilai.getNilaiExisting');
     Route::get('/ajax/peserta-get-materi', [PesertaController::class, 'getMateriByJenis'])->name('peserta.getMateri');
+    Route::get('/ajax/check-peserta-nilai', [PesertaController::class, 'checkNilaiPeserta'])->name('peserta.checkNilai');
 
     // 3. PESERTA (ROOT RESOURCE)
     Route::get('peserta/export', [PesertaController::class, 'export'])->name('peserta.export');
@@ -92,9 +93,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/kategori-pelatihan/{id}/hapus', [KategoriPelatihanController::class, 'destroy'])->name('kategori-pelatihans.destroy');
     });
 
-    // 7. FEEDBACK
+    // 7. FEEDBACK (EVALUASI PASCA MATERI OFFLINE)
     Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback.index');
+    Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+    Route::post('/feedback/update-form-url', [FeedbackController::class, 'updateFormUrl'])->name('feedback.updateFormUrl');
     Route::put('/feedback/{id}/resolve', [FeedbackController::class, 'resolve'])->name('feedback.resolve');
+    Route::delete('/feedback/{id}', [FeedbackController::class, 'destroy'])->name('feedback.destroy');
 });
 
 require __DIR__.'/auth.php';

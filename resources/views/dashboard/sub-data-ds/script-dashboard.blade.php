@@ -1,3 +1,4 @@
+<script>
 window.exportToExcel = function() {
     console.log('Engine Excel Dashboard Menyamping Aktif dengan Solid Border & Landscape View...');
     
@@ -10,7 +11,7 @@ window.exportToExcel = function() {
 
     const container = document.getElementById('report-content');
     if (!container) {
-        console.error('Container report-content tidak ditemukan, Daf!');
+        console.error('Container report-content tidak ditemukan!');
         return;
     }
 
@@ -205,3 +206,5 @@ window.exportToExcel = function() {
         link.click();
     });
 };
+</script>
+

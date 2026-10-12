@@ -7,15 +7,16 @@
                 <span class="text-[10px] font-bold text-[#22a0f6] uppercase tracking-widest italic">Monitoring Pelatihan</span>
             </div>
             
-            <div class="flex flex-wrap items-center gap-1.5 w-full sm:w-auto justify-start sm:justify-end">
+            <!-- Toolbar Tombol Aksi (Responsif & Rapi di Mobile / Layar Kecil) -->
+            <div class="grid grid-cols-2 sm:flex sm:items-center gap-1.5 w-full sm:w-auto">
                 <button type="button" 
                         onclick="document.getElementById('modalImportPelatihan').classList.remove('hidden')" 
-                        class="px-3 py-1.5 bg-emerald-600 border border-emerald-700 text-white text-[9px] font-black hover:bg-emerald-700 transition uppercase tracking-wider rounded-xs shadow-xs flex items-center gap-1 cursor-pointer">
+                        class="w-full sm:w-auto px-3 py-1.5 bg-emerald-600 border border-emerald-700 text-white text-[9px] font-black hover:bg-emerald-700 transition uppercase tracking-wider rounded-xs shadow-xs flex items-center justify-center gap-1 cursor-pointer">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                     Import Excel
                 </button>
                 <a href="{{ route('academic.exportPelatihan') }}" 
-                   class="px-3 py-1.5 bg-slate-800 border border-slate-900 text-white text-[9px] font-black hover:bg-slate-900 transition uppercase tracking-wider rounded-xs shadow-xs flex items-center gap-1">
+                   class="w-full sm:w-auto px-3 py-1.5 bg-slate-800 border border-slate-900 text-white text-[9px] font-black hover:bg-slate-900 transition uppercase tracking-wider rounded-xs shadow-xs flex items-center justify-center gap-1">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     Export Excel
                 </a>
@@ -34,6 +35,16 @@
                         <p class="text-[10px] font-bold tracking-wide uppercase">{{ session('success') }}</p>
                     </div>
                     <button type="button" class="text-emerald-600 hover:text-emerald-800 font-black text-sm cursor-pointer" onclick="this.parentElement.remove()">&times;</button>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="mb-3 px-3.5 sm:px-4 py-2 bg-rose-50 border border-rose-200 text-rose-800 rounded-xs shadow-2xs flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[9px] font-black uppercase bg-rose-600 text-white px-1.5 py-0.5 rounded-xs">WARNING</span>
+                        <p class="text-[10px] font-bold tracking-wide uppercase">{{ session('error') }}</p>
+                    </div>
+                    <button type="button" class="text-rose-600 hover:text-rose-800 font-black text-sm cursor-pointer" onclick="this.parentElement.remove()">&times;</button>
                 </div>
             @endif
 
@@ -104,20 +115,20 @@
                            class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 text-[10px] font-bold uppercase tracking-wider text-slate-700 rounded-xs focus:outline-none focus:border-[#22a0f6] focus:bg-white placeholder-slate-400 shadow-inner">
                 </div>
 
-                <div class="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 w-full md:w-auto">
                     <button type="button" 
                             onclick="document.getElementById('modalModulPelatihan').classList.remove('hidden')" 
-                            class="px-3 py-1.5 bg-slate-600 border border-slate-700 text-white text-[9px] font-black hover:bg-slate-700 transition uppercase tracking-wider rounded-xs shadow-xs cursor-pointer">
+                            class="w-full sm:w-auto justify-center px-3 py-1.5 bg-slate-600 border border-slate-700 text-white text-[9px] font-black hover:bg-slate-700 transition uppercase tracking-wider rounded-xs shadow-xs cursor-pointer flex items-center">
                         + Kelola Program Pelatihan
                     </button>
                     <button type="button" 
                             onclick="document.getElementById('modalBankMateri').classList.remove('hidden')" 
-                            class="px-3 py-1.5 bg-slate-800 border border-slate-900 text-white text-[9px] font-black hover:bg-black transition uppercase tracking-wider rounded-xs shadow-xs cursor-pointer">
+                            class="w-full sm:w-auto justify-center px-3 py-1.5 bg-slate-800 border border-slate-900 text-white text-[9px] font-black hover:bg-black transition uppercase tracking-wider rounded-xs shadow-xs cursor-pointer flex items-center">
                         + Kelola Materi Pelatihan
                     </button>
                     <button type="button" 
                             onclick="document.getElementById('modalCreatePelatihan').classList.remove('hidden')" 
-                            class="px-3.5 py-1.5 bg-[#22a0f6] text-white text-[9px] font-black uppercase tracking-wider hover:bg-blue-600 transition rounded-xs shadow-xs cursor-pointer">
+                            class="w-full sm:w-auto justify-center px-3.5 py-1.5 bg-[#22a0f6] text-white text-[9px] font-black uppercase tracking-wider hover:bg-blue-600 transition rounded-xs shadow-xs cursor-pointer flex items-center">
                         + Tambah Kelas Pelatihan
                     </button>
                 </div>
@@ -144,6 +155,9 @@
                         $komponenText = implode(', ', $komponenArray);
                         $komponenJson = json_encode($komponenArray);
                         $materiIdsJson = json_encode($p->materi_ids ?? []);
+                        $pesertaCount = $p->peserta_count ?? 0;
+                        $nilaiCount = $p->nilais_count ?? 0;
+                        $hasRelations = ($pesertaCount > 0 || $nilaiCount > 0);
                     @endphp
                     <tr data-nama="{{ $cleanTitle }}" 
                         data-jenis="{{ $p->jenis_pelatihan }}" 
@@ -166,7 +180,7 @@
                         </td>
 
                         <td class="px-4 py-2.5 align-middle">
-                            <span class="text-[10px] font-bold text-slate-700 uppercase tracking-tight truncate block search-item">
+                            <span class="text-[10px] font-black text-slate-800 uppercase tracking-tight truncate block search-item">
                                 {{ $p->mentor->nama_mentor ?? 'Belum Ditunjuk' }}
                             </span>
                         </td>
@@ -198,8 +212,16 @@
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2.5"></path></svg>
                                 </button>
                                 <button type="button" 
-                                        onclick="mintaVerifikasiHapus('{{ route('academic.destroyPelatihan', $p->id) }}', '{{ addslashes($cleanTitle) }}')" 
-                                        title="Hapus Kelas" 
+                                        data-id="{{ $p->id }}"
+                                        data-nama="{{ $cleanTitle }}"
+                                        data-jenis="{{ $p->jenis_pelatihan }}"
+                                        data-mentor="{{ $p->mentor->nama_mentor ?? 'Belum Ditunjuk' }}"
+                                        data-url="{{ route('academic.destroyPelatihan', $p->id) }}"
+                                        data-peserta-count="{{ $pesertaCount }}"
+                                        data-nilai-count="{{ $nilaiCount }}"
+                                        data-has-relations="{{ $hasRelations ? '1' : '0' }}"
+                                        onclick="handleHapusPelatihan(this)" 
+                                        title="{{ $hasRelations ? 'Kelas ini memiliki peserta/nilai (Terkunci)' : 'Hapus Kelas' }}" 
                                         class="p-1 bg-white border border-slate-200 hover:bg-rose-600 hover:text-white text-rose-500 transition-colors shadow-2xs rounded-xs cursor-pointer">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2.5"></path></svg>
                                 </button>

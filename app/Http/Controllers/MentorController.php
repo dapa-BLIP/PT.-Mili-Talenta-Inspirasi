@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Trainer;
+use App\Models\Pelatihan;
+use App\Models\KategoriPelatihan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Exports\MentorExport;
@@ -15,7 +17,13 @@ class MentorController extends Controller
     public function index()
     {
         $trainers = Trainer::latest()->get();
-        return view('academic.mentor', compact('trainers'));
+
+        $kategoriPrograms = KategoriPelatihan::orderBy('nama_kategori', 'asc')->pluck('nama_kategori')->toArray();
+        $pelatihanPrograms = Pelatihan::whereNotNull('jenis_pelatihan')->where('jenis_pelatihan', '!=', '')->distinct()->pluck('jenis_pelatihan')->toArray();
+        $programs = array_values(array_unique(array_filter(array_merge($kategoriPrograms, $pelatihanPrograms))));
+        sort($programs);
+
+        return view('academic.mentor', compact('trainers', 'programs'));
     }
 
     public function store(Request $request)

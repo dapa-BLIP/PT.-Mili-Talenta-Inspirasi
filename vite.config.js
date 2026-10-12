@@ -6,14 +6,9 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css', 
-                 'resources/js/app.js',
-                 'resources/js/report-export.js',
-                 'resources/js/matrix-grading.js',
-                'resources/js/training-schedule.js',
-                ],
+                'resources/js/app.js',
+            ],
             refresh: true,
         }),
     ],
 });
-
-

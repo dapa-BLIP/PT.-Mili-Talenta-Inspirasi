@@ -6,6 +6,8 @@ use App\Models\Trainer;
 use App\Models\Pelatihan;
 use App\Models\Materi;
 use App\Models\KategoriPelatihan;
+use App\Models\Peserta;
+use App\Models\Nilai;
 use Illuminate\Http\Request;
 use App\Exports\PelatihanExport;
 use App\Imports\PelatihanImport;
@@ -16,10 +18,22 @@ class PelatihanController extends Controller
 {
     public function index()
     {
-        $pelatihans = Pelatihan::with('mentor')->latest()->get();
+        $pelatihans = Pelatihan::with('mentor')->withCount('nilais')->latest()->get();
         $materis = Materi::with('trainer')->latest()->get(); 
         $kategoriPelatihans = KategoriPelatihan::orderBy('nama_kategori', 'asc')->get();
         $trainers = Trainer::where('status', 'AKTIF')->orderBy('nama_mentor', 'asc')->get();
+
+        // Hitung peserta yang terdaftar pada setiap pelatihan
+        $allPesertas = Peserta::select('pelatihan')->get();
+        foreach ($pelatihans as $p) {
+            $namaClean = strtolower(trim((string)$p->nama_pelatihan));
+            $jenisClean = strtolower(trim((string)$p->jenis_pelatihan));
+            $p->peserta_count = $allPesertas->filter(function($item) use ($namaClean, $jenisClean) {
+                $pesertaProg = strtolower(trim((string)$item->pelatihan));
+                return ($namaClean !== '' && $pesertaProg === $namaClean) ||
+                       ($jenisClean !== '' && $pesertaProg === $jenisClean);
+            })->count();
+        }
 
         return view('academic.pelatihan', compact('pelatihans', 'materis', 'kategoriPelatihans', 'trainers'));
     }
@@ -103,8 +117,41 @@ class PelatihanController extends Controller
 
     public function destroy($id)
     {
-        Pelatihan::findOrFail($id)->delete();
-        return redirect()->route('academic.pelatihan.index')->with('success', 'Data Master Pelatihan berhasil dihapus.');
+        $pelatihan = Pelatihan::findOrFail($id);
+
+        $nilaiCount = Nilai::where('pelatihan_id', $pelatihan->id)->count();
+
+        $namaLower = strtolower(trim((string)$pelatihan->nama_pelatihan));
+        $jenisLower = strtolower(trim((string)$pelatihan->jenis_pelatihan));
+
+        $pesertaCount = Peserta::where(function($q) use ($namaLower, $jenisLower) {
+            if ($namaLower !== '') {
+                $q->whereRaw('LOWER(TRIM(pelatihan)) = ?', [$namaLower]);
+            }
+            if ($jenisLower !== '' && $jenisLower !== $namaLower) {
+                $q->orWhereRaw('LOWER(TRIM(pelatihan)) = ?', [$jenisLower]);
+            }
+        })->count();
+
+        if ($pesertaCount > 0 || $nilaiCount > 0) {
+            $alasan = [];
+            if ($pesertaCount > 0) {
+                $alasan[] = "{$pesertaCount} peserta terdaftar";
+            }
+            if ($nilaiCount > 0) {
+                $alasan[] = "{$nilaiCount} data nilai yang telah diinput";
+            }
+
+            $pesanWarning = "Kelas Pelatihan '{$pelatihan->nama_pelatihan}' tidak dapat dihapus karena masih memiliki " . implode(' dan ', $alasan) . " di sistem!";
+
+            return redirect()->route('academic.pelatihan.index')
+                ->with('error', $pesanWarning)
+                ->withErrors(['hapus_error' => $pesanWarning]);
+        }
+
+        $pelatihan->delete();
+
+        return redirect()->route('academic.pelatihan.index')->with('success', "Data Master Pelatihan '{$pelatihan->nama_pelatihan}' berhasil dihapus.");
     }
 
     public function export()

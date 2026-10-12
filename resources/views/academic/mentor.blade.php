@@ -7,19 +7,20 @@
                 <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest italic">Monitoring View</span>
             </div>
             
-            <div class="flex flex-wrap items-center gap-1.5 w-full sm:w-auto justify-start sm:justify-end">
-                <button type="button" onclick="openImportMentorModal()" class="px-3 py-1.5 bg-emerald-600 border border-emerald-700 text-white text-[9px] font-black hover:bg-emerald-700 transition uppercase tracking-wider rounded-xs shadow-xs flex items-center gap-1 cursor-pointer">
+            <!-- Toolbar Tombol Aksi (Responsif & Rapi di Mobile / Layar Kecil) -->
+            <div class="grid grid-cols-2 sm:flex sm:items-center gap-1.5 w-full sm:w-auto">
+                <button type="button" onclick="openImportMentorModal()" class="w-full sm:w-auto px-3 py-1.5 bg-emerald-600 border border-emerald-700 text-white text-[9px] font-black hover:bg-emerald-700 transition uppercase tracking-wider rounded-xs shadow-xs flex items-center justify-center gap-1 cursor-pointer">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                     Import Excel
                 </button>
-                <a href="{{ route('academic.exportMentor') }}" class="px-3 py-1.5 bg-slate-800 border border-slate-900 text-white text-[9px] font-black hover:bg-slate-900 transition uppercase tracking-wider rounded-xs shadow-xs flex items-center gap-1">
+                <a href="{{ route('academic.exportMentor') }}" class="w-full sm:w-auto px-3 py-1.5 bg-slate-800 border border-slate-900 text-white text-[9px] font-black hover:bg-slate-900 transition uppercase tracking-wider rounded-xs shadow-xs flex items-center justify-center gap-1">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     Export Excel
                 </a>
-                <button type="button" onclick="window.print()" class="px-3 py-1.5 bg-slate-600 text-white text-[9px] font-black hover:bg-slate-700 transition uppercase tracking-wider rounded-xs shadow-xs cursor-pointer">
+                <button type="button" onclick="window.print()" class="w-full sm:w-auto px-3 py-1.5 bg-slate-600 text-white text-[9px] font-black hover:bg-slate-700 transition uppercase tracking-wider rounded-xs shadow-xs cursor-pointer flex items-center justify-center">
                     Print Report
                 </button>
-                <button type="button" onclick="openCreateMentorModal()" class="px-3.5 py-1.5 bg-[#22a0f6] text-white text-[9px] font-black uppercase tracking-wider hover:bg-blue-600 transition rounded-xs shadow-xs cursor-pointer">
+                <button type="button" onclick="openCreateMentorModal()" class="w-full sm:w-auto px-3.5 py-1.5 bg-[#22a0f6] text-white text-[9px] font-black uppercase tracking-wider hover:bg-blue-600 transition rounded-xs shadow-xs cursor-pointer flex items-center justify-center">
                     + Add Mentor
                 </button>
             </div>

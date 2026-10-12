@@ -57,10 +57,15 @@
             </div>
 
             <div class="bg-white border border-slate-200 p-2.5 rounded-xs shadow-2xs space-y-1">
-                <label class="block text-[9px] font-black uppercase tracking-wider text-slate-700">Program Pelatihan <span class="text-rose-500">*</span></label>
+                <div class="flex justify-between items-center">
+                    <label class="block text-[9px] font-black uppercase tracking-wider text-slate-700">Program Pelatihan <span class="text-rose-500">*</span></label>
+                    <a href="{{ route('academic.pelatihan.index') }}" target="_blank" class="text-[9px] font-semibold text-blue-500 hover:underline uppercase tracking-tight">+ Kelola Program</a>
+                </div>
                 <select name="program_pelatihan" class="w-full bg-slate-50 border border-slate-300 px-2.5 py-1.5 text-[10.5px] font-bold text-slate-800 rounded-xs uppercase focus:outline-none focus:border-slate-800 focus:bg-white" required>
-                    <option value="Pelatihan Teknis">PELATIHAN TEKNIS</option>
-                    <option value="Pelatihan Non Teknis">PELATIHAN NON TEKNIS</option>
+                    <option value="">-- PILIH PROGRAM PELATIHAN --</option>
+                    @foreach ($programs ?? [] as $prog)
+                        <option value="{{ $prog }}">{{ strtoupper($prog) }}</option>
+                    @endforeach
                 </select>
             </div>
 
