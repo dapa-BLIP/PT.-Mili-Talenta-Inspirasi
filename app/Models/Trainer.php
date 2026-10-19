@@ -20,4 +20,9 @@ class Trainer extends Model
     {
         return $this->hasMany(Pelatihan::class, 'trainer_id');
     }
+
+    public function kategoriPelatihan()
+    {
+        return $this->belongsTo(KategoriPelatihan::class, 'program_pelatihan', 'nama_kategori');
+    }
 }

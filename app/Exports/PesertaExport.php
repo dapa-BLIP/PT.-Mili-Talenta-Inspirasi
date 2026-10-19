@@ -28,8 +28,7 @@ class PesertaExport implements FromCollection, WithHeadings, WithMapping, WithSt
     public function headings(): array
     {
         return [
-            'NO.', 
-            'ID PESERTA', 
+            'NO.',
             'NAMA LENGKAP', 
             'GENDER', 
             'TEMPAT, TANGGAL LAHIR', 
@@ -46,12 +45,9 @@ class PesertaExport implements FromCollection, WithHeadings, WithMapping, WithSt
     {
         static $rowNumber = 0;
         $rowNumber++;
+
         return [
-            sprintf('%03d', $rowNumber),            // Kolom A: NO. biasa (001, 002)
-            
-            // 🚀 FIX LOGIKAL: Ditambahkan tanda petik single di depan agar Excel membaca murni sebagai STRING TEXT 8 Digit, gak diringkas otomatis jadi angka satuan lagi cook!
-            "'" . sprintf('%08d', $peserta->id),    // Kolom B: ID PESERTA (00000007, 00000008)
-            
+            sprintf('%03d', $rowNumber),
             strtoupper($peserta->nama_lengkap), 
             strtoupper($peserta->gender ?? 'PRIA'), 
             $peserta->ttl ?: 'Bekasi, ' . date('d-m-Y'), 
@@ -87,7 +83,7 @@ class PesertaExport implements FromCollection, WithHeadings, WithMapping, WithSt
             'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]],
         ]);
 
-        $sheet->getStyle('A8:K8')->applyFromArray([
+        $sheet->getStyle('A8:J8')->applyFromArray([
             'font' => ['name' => 'Arial', 'bold' => true, 'size' => 10, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '334155']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER]
@@ -97,24 +93,23 @@ class PesertaExport implements FromCollection, WithHeadings, WithMapping, WithSt
         for ($i = 9; $i <= $highestRow; $i++) {
             $sheet->getRowDimension($i)->setRowHeight(20);
             $sheet->getStyle('A' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('B' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER); 
-            $sheet->getStyle('C' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+            $sheet->getStyle('B' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+            $sheet->getStyle('C' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER); 
             $sheet->getStyle('D' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('E' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('F' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-            $sheet->getStyle('G' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('H' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+            $sheet->getStyle('E' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+            $sheet->getStyle('F' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('G' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+            $sheet->getStyle('H' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $sheet->getStyle('I' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $sheet->getStyle('J' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('K' . $i)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         }
 
-        $sheet->getStyle("A8:K{$highestRow}")->applyFromArray([
+        $sheet->getStyle("A8:J{$highestRow}")->applyFromArray([
             'font' => ['name' => 'Arial', 'size' => 10],
             'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]],
         ]);
 
-        $widths = ['A' => 16, 'B' => 18, 'C' => 25, 'D' => 12, 'E' => 25, 'F' => 26, 'G' => 18, 'H' => 22, 'I' => 27, 'J' => 20, 'K' => 19];
+        $widths = ['A' => 12, 'B' => 28, 'C' => 14, 'D' => 25, 'E' => 26, 'F' => 18, 'G' => 24, 'H' => 27, 'I' => 20, 'J' => 19];
         foreach ($widths as $col => $width) {
             $sheet->getColumnDimension($col)->setWidth($width);
         }

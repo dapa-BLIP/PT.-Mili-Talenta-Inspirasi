@@ -57,7 +57,7 @@ class PelatihanImport implements ToCollection, WithHeadingRow
                 }
 
                 // Tentukan Jenis Pelatihan dari Master
-                $jenisPelatihan = $masterProgram->jenis_pelatihan ?? 'PELATIHAN TEKNIS';
+                $jenisPelatihan = $masterProgram->jenis_pelatihan ?? $masterProgram->nama_kategori ?? 'PELATIHAN TEKNIS';
 
                 // 2. Validasi Mentor Wajib Terdaftar & Status AKTIF
                 if (empty($mentorNameClean) || $mentorNameClean === 'BELUM DITUNJUK' || $mentorNameClean === '-') {

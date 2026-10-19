@@ -30,7 +30,8 @@
                     <label class="block text-[9px] font-black uppercase tracking-wider text-slate-700">
                         NIDN / NIK
                     </label>
-                    <input type="text" name="nidn" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16)" class="w-full bg-slate-50 border border-slate-300 px-2.5 py-1.5 text-[11px] font-bold font-mono text-slate-800 rounded-xs focus:outline-none focus:border-slate-800 focus:bg-white transition-colors" placeholder="Opsional">
+                    <input type="text" id="create_nidn" name="nidn" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16); checkDuplicateNidnCreate(this.value)" class="w-full bg-slate-50 border border-slate-300 px-2.5 py-1.5 text-[11px] font-bold font-mono text-slate-800 rounded-xs focus:outline-none focus:border-slate-800 focus:bg-white transition-colors" placeholder="Opsional">
+                    <p id="create_nidn_warning" class="hidden text-[8.5px] font-black text-rose-600 uppercase leading-tight mt-0.5"></p>
                 </div>
             </div>
 
@@ -52,7 +53,7 @@
                 </div>
                 <div class="bg-white border border-slate-200 p-2.5 rounded-xs shadow-2xs space-y-1">
                     <label class="block text-[9px] font-black uppercase tracking-wider text-slate-700">Nomor WhatsApp <span class="text-rose-500">*</span></label>
-                    <input type="text" name="kontak" placeholder="0812-3456-7890" maxlength="16" oninput="this.value = this.value.replace(/[^0-9-]/g, '')" class="w-full bg-slate-50 border border-slate-300 px-2.5 py-1.5 text-[10.5px] font-bold font-mono text-slate-800 rounded-xs focus:outline-none focus:border-slate-800 focus:bg-white" required>
+                    <input type="text" name="kontak" placeholder="+6281234567890" maxlength="16" oninput="this.value = this.value.replace(/[^0-9+]/g, '')" class="w-full bg-slate-50 border border-slate-300 px-2.5 py-1.5 text-[10.5px] font-bold font-mono text-slate-800 rounded-xs focus:outline-none focus:border-slate-800 focus:bg-white" required>
                 </div>
             </div>
 

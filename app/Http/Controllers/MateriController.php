@@ -72,6 +72,18 @@ class MateriController extends Controller
     public function destroy($id)
     {
         $materi = Materi::findOrFail($id);
+
+        $isUsed = Pelatihan::all()->contains(function ($pelatihan) use ($materi) {
+            $ids = is_array($pelatihan->materi_ids) ? array_map('intval', $pelatihan->materi_ids) : [];
+            return in_array((int)$materi->id, $ids, true);
+        });
+
+        if ($isUsed) {
+            return redirect()->route('academic.pelatihan.index')->withErrors([
+                'error' => 'Gagal! Materi "' . $materi->nama_materi . '" sedang aktif digunakan pada kelas pelatihan dan tidak dapat dihapus.'
+            ]);
+        }
+
         $materi->delete();
 
         return redirect()->route('academic.pelatihan.index')->with('success', 'Materi pembelajaran berhasil dihapus.');

@@ -35,10 +35,11 @@ class KategoriPelatihanController extends Controller
 
         $terpakaiDiPelatihan = Pelatihan::where('jenis_pelatihan', $kategori->nama_kategori)->exists();
         $terpakaiDiMateri    = Materi::where('jenis_pelatihan', $kategori->nama_kategori)->exists();
+        $terpakaiDiMentor    = \App\Models\Trainer::whereRaw('UPPER(TRIM(program_pelatihan)) = ?', [strtoupper(trim($kategori->nama_kategori))])->exists();
 
-        if ($terpakaiDiPelatihan || $terpakaiDiMateri) {
+        if ($terpakaiDiPelatihan || $terpakaiDiMateri || $terpakaiDiMentor) {
             return redirect()->route('academic.pelatihan.index')->withErrors([
-                'delete_error' => "Modul '{$kategori->nama_kategori}' tidak dapat dihapus karena masih digunakan oleh kelas pelatihan atau bank materi aktif."
+                'delete_error' => "Modul '{$kategori->nama_kategori}' tidak dapat dihapus karena masih digunakan oleh kelas pelatihan, mentor, atau bank materi aktif."
             ]);
         }
 

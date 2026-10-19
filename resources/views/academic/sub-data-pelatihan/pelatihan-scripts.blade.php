@@ -1,6 +1,51 @@
 <script>
     window.BANK_MATERI_GLOBAL = @json($materis ?? []);
+    window.DATA_MENTOR_GLOBAL = @json($trainers ?? []);
     let targetHapusNama = '';
+
+    function filterMentorByProgram(selectId, programName, selectedTrainerId = '') {
+        const selectEl = document.getElementById(selectId);
+        if (!selectEl) return;
+
+        const progUpper = String(programName || '').trim().toUpperCase();
+        selectEl.innerHTML = '';
+
+        if (!progUpper) {
+            selectEl.disabled = true;
+            selectEl.className = "w-full bg-slate-100 border border-slate-300 px-2.5 py-1.5 text-[10.5px] font-bold text-slate-400 rounded-xs uppercase focus:outline-none focus:border-slate-800 focus:bg-white transition-colors cursor-not-allowed";
+            selectEl.innerHTML = '<option value="">- PILIH PROGRAM PELATIHAN DULU -</option>';
+            return;
+        }
+
+        const mentors = (window.DATA_MENTOR_GLOBAL || []).filter(m =>
+            String(m.program_pelatihan || '').trim().toUpperCase() === progUpper
+        );
+
+        if (mentors.length === 0) {
+            selectEl.disabled = true;
+            selectEl.className = "w-full bg-slate-100 border border-slate-300 px-2.5 py-1.5 text-[10.5px] font-bold text-slate-400 rounded-xs uppercase focus:outline-none focus:border-slate-800 focus:bg-white transition-colors cursor-not-allowed";
+            selectEl.innerHTML = `<option value="">- BELUM ADA MENTOR DI PROGRAM ${progUpper} -</option>`;
+            return;
+        }
+
+        selectEl.disabled = false;
+        selectEl.className = "w-full bg-slate-50 border border-slate-300 px-2.5 py-1.5 text-[10.5px] font-bold text-slate-800 rounded-xs uppercase focus:outline-none focus:border-slate-800 focus:bg-white transition-colors cursor-pointer";
+
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = '';
+        defaultOpt.textContent = '- PILIH MENTOR -';
+        selectEl.appendChild(defaultOpt);
+
+        mentors.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = String(m.id);
+            opt.textContent = String(m.nama_mentor || '').toUpperCase();
+            if (selectedTrainerId && String(m.id) === String(selectedTrainerId)) {
+                opt.selected = true;
+            }
+            selectEl.appendChild(opt);
+        });
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
         const modalIds = [
@@ -81,6 +126,9 @@
         if (hiddenNama) {
             hiddenNama.value = val ? val.toUpperCase() : '';
         }
+
+        // Filter daftar mentor sesuai program pelatihan yang dipilih
+        filterMentorByProgram('create_trainer_id', val);
 
         container.innerHTML = '';
         if (!val) {
@@ -283,9 +331,7 @@
         if (document.getElementById('edit_jenis_pelatihan')) {
             document.getElementById('edit_jenis_pelatihan').value = data.jenis || '';
         }
-        if (document.getElementById('edit_trainer_id')) {
-            document.getElementById('edit_trainer_id').value = data.trainer || '';
-        }
+        filterMentorByProgram('edit_trainer_id', data.jenis || namaVal, data.trainer || '');
         if (document.getElementById('edit_raw_komponen')) {
             document.getElementById('edit_raw_komponen').value = (data.komponen || '').replace(/_/g, ' ');
         }
@@ -312,6 +358,7 @@
             hiddenNama.value = valJenis ? valJenis.toUpperCase() : '';
         }
 
+        filterMentorByProgram('edit_trainer_id', valJenis);
         renderCheckboxesEdit(valJenis, []);
     }
 

@@ -47,8 +47,8 @@ class PesertaController extends Controller
         $jenis = $request->query('jenis');
         
         $materis = Materi::when($jenis, function ($q) use ($jenis) {
-            $q->where('jenis_materi', $jenis);
-        })->orderBy('id', 'asc')->get(['id', 'nama_materi', 'jenis_materi']);
+            $q->where('jenis_pelatihan', $jenis);
+        })->orderBy('id', 'asc')->get(['id', 'nama_materi', 'jenis_pelatihan']);
 
         return response()->json($materis);
     }
@@ -299,8 +299,16 @@ class PesertaController extends Controller
      */
     public function export() 
     {
-        $namaFile = 'Template_Peserta_CMS_' . now()->format('dmY') . '.xlsx';
+        $namaFile = 'Data_Peserta_CMS_' . now()->format('dmY') . '.xlsx';
         return Excel::download(new PesertaExport, $namaFile);
+    }
+
+    /**
+     * Unduh Template Import Excel Peserta (Tanpa Kolom NO. & ID PESERTA)
+     */
+    public function template()
+    {
+        return Excel::download(new \App\Imports\Templates\PesertaImportTemplate, 'TEMPLATE_IMPORT_PESERTA.xlsx');
     }
 
     /**

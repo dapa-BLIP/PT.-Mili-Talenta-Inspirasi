@@ -55,12 +55,11 @@
                             Mentor Pelatihan <span class="text-rose-500">*</span>
                         </label>
                         <select name="trainer_id" 
-                                class="w-full bg-slate-50 border border-slate-300 px-2.5 py-1.5 text-[10.5px] font-bold text-slate-800 rounded-xs uppercase focus:outline-none focus:border-slate-800 focus:bg-white transition-colors cursor-pointer" 
+                                id="create_trainer_id"
+                                disabled
+                                class="w-full bg-slate-100 border border-slate-300 px-2.5 py-1.5 text-[10.5px] font-bold text-slate-400 rounded-xs uppercase focus:outline-none focus:border-slate-800 focus:bg-white transition-colors cursor-not-allowed" 
                                 required>
-                            <option value="">- PILIH MENTOR -</option>
-                            @foreach ($trainers ?? [] as $t)
-                                <option value="{{ $t->id }}">{{ $t->nama_mentor }}</option>
-                            @endforeach
+                            <option value="">- PILIH PROGRAM PELATIHAN DULU -</option>
                         </select>
                     </div>
 

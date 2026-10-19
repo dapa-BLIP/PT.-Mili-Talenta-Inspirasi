@@ -11,4 +11,14 @@ class KategoriPelatihan extends Model
     protected $fillable = [
         'nama_kategori',
     ];
+
+    public function trainers()
+    {
+        return $this->hasMany(Trainer::class, 'program_pelatihan', 'nama_kategori');
+    }
+
+    public function pelatihans()
+    {
+        return $this->hasMany(Pelatihan::class, 'jenis_pelatihan', 'nama_kategori');
+    }
 }

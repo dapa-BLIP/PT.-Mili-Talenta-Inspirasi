@@ -114,7 +114,8 @@
 
             const waLink = document.getElementById('detail_wa_link');
             if (clean) {
-                waLink.href = 'https://wa.me/' + clean;
+                const msg = encodeURIComponent('Halo ' + (data.penanggung_jawab || data.nama_perusahaan || '') + ', ');
+                waLink.href = 'https://wa.me/' + clean + '?text=' + msg;
                 waLink.style.pointerEvents = 'auto';
             } else {
                 waLink.href = '#';

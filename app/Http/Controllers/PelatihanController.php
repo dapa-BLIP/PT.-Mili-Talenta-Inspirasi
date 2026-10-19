@@ -48,7 +48,19 @@ class PelatihanController extends Controller
             'materi_ids'      => 'nullable|array', 
         ]);
 
-        $namaClean = strtoupper(trim((string)$request->nama_pelatihan));
+        $namaClean  = strtoupper(trim((string) $request->nama_pelatihan));
+        $jenisClean = strtoupper(trim((string) $request->jenis_pelatihan));
+
+        $trainer = Trainer::findOrFail($request->trainer_id);
+        $trainerProg = strtoupper(trim((string) $trainer->program_pelatihan));
+
+        if ($trainerProg !== $jenisClean && $trainerProg !== $namaClean) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors([
+                    'trainer_id' => "Mentor '{$trainer->nama_mentor}' terdaftar pada program '{$trainer->program_pelatihan}', bukan pada program '{$jenisClean}'! Pilih mentor yang sesuai dengan program pelatihan."
+                ]);
+        }
 
         $sudahAda = Pelatihan::where('nama_pelatihan', $namaClean)
             ->where('trainer_id', $request->trainer_id)
@@ -66,7 +78,7 @@ class PelatihanController extends Controller
 
         Pelatihan::create([
             'nama_pelatihan'  => $namaClean,
-            'jenis_pelatihan' => strtoupper(trim((string)$request->jenis_pelatihan)),
+            'jenis_pelatihan' => $jenisClean,
             'trainer_id'      => $request->trainer_id,
             'komponen_nilai'  => $komponenFinal,
             'materi_ids'      => $request->materi_ids ?? [], 
@@ -87,7 +99,19 @@ class PelatihanController extends Controller
             'materi_ids'      => 'nullable|array', 
         ]);
 
-        $namaClean = strtoupper(trim((string)$request->nama_pelatihan));
+        $namaClean  = strtoupper(trim((string) $request->nama_pelatihan));
+        $jenisClean = strtoupper(trim((string) $request->jenis_pelatihan));
+
+        $trainer = Trainer::findOrFail($request->trainer_id);
+        $trainerProg = strtoupper(trim((string) $trainer->program_pelatihan));
+
+        if ($trainerProg !== $jenisClean && $trainerProg !== $namaClean) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors([
+                    'trainer_id' => "Mentor '{$trainer->nama_mentor}' terdaftar pada program '{$trainer->program_pelatihan}', bukan pada program '{$jenisClean}'! Pilih mentor yang sesuai dengan program pelatihan."
+                ]);
+        }
 
         $sudahAda = Pelatihan::where('nama_pelatihan', $namaClean)
             ->where('trainer_id', $request->trainer_id)
@@ -106,7 +130,7 @@ class PelatihanController extends Controller
 
         $pelatihan->update([
             'nama_pelatihan'  => $namaClean,
-            'jenis_pelatihan' => strtoupper(trim((string)$request->jenis_pelatihan)),
+            'jenis_pelatihan' => $jenisClean,
             'trainer_id'      => $request->trainer_id,
             'komponen_nilai'  => $komponenFinal,
             'materi_ids'      => $request->materi_ids ?? [], 

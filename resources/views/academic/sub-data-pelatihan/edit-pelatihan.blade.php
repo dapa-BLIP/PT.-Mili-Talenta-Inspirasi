@@ -1,7 +1,7 @@
 <!-- ========================================================================= -->
 <!-- MODAL: EDIT PELATIHAN (SPLIT 2 KOLOM: FORM KIRI + MATERI KANAN)          -->
 <!-- ========================================================================= -->
-<div id="modalEditPelatihan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[200] hidden flex items-center justify-center p-3 sm:p-4 overflow-y-aut select-none">
+<div id="modalEditPelatihan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[200] hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto select-none">
     
     <div class="fixed inset-0" onclick="tutupModalEditPelatihan()"></div>
 
@@ -63,7 +63,7 @@
                                 required>
                             <option value="">- PILIH MENTOR -</option>
                             @foreach ($trainers ?? [] as $t)
-                                <option value="{{ $t->id }}">{{ $t->nama_mentor }}</option>
+                                <option value="{{ $t->id }}" data-program="{{ strtoupper(trim($t->program_pelatihan ?? '')) }}">{{ $t->nama_mentor }}</option>
                             @endforeach
                         </select>
                     </div>

@@ -1,4 +1,64 @@
 <script>
+    window.EXISTING_MENTORS = @json($trainers ?? []);
+    window.CURRENT_EDIT_MENTOR_ID = null;
+
+    function checkDuplicateNidnCreate(val) {
+        const cleanVal = String(val || '').replace(/[^0-9]/g, '').trim();
+        const warnEl = document.getElementById('create_nidn_warning');
+        const inputEl = document.getElementById('create_nidn');
+        if (!warnEl || !inputEl) return false;
+
+        if (!cleanVal) {
+            warnEl.classList.add('hidden');
+            warnEl.textContent = '';
+            inputEl.classList.remove('border-rose-500', 'bg-rose-50');
+            return false;
+        }
+
+        const dup = (window.EXISTING_MENTORS || []).find(m => String(m.nidn || '').trim() === cleanVal);
+        if (dup) {
+            warnEl.textContent = `⚠️ Peringatan: NIK/NIDN sudah terdaftar pada mentor ${dup.nama_mentor}!`;
+            warnEl.classList.remove('hidden');
+            inputEl.classList.add('border-rose-500', 'bg-rose-50');
+            return true;
+        } else {
+            warnEl.classList.add('hidden');
+            warnEl.textContent = '';
+            inputEl.classList.remove('border-rose-500', 'bg-rose-50');
+            return false;
+        }
+    }
+
+    function checkDuplicateNidnEdit(val) {
+        const cleanVal = String(val || '').replace(/[^0-9]/g, '').trim();
+        const warnEl = document.getElementById('edit_nidn_warning');
+        const inputEl = document.getElementById('edit_nidn');
+        if (!warnEl || !inputEl) return false;
+
+        if (!cleanVal) {
+            warnEl.classList.add('hidden');
+            warnEl.textContent = '';
+            inputEl.classList.remove('border-rose-500', 'bg-rose-50');
+            return false;
+        }
+
+        const dup = (window.EXISTING_MENTORS || []).find(m =>
+            String(m.nidn || '').trim() === cleanVal &&
+            String(m.id) !== String(window.CURRENT_EDIT_MENTOR_ID)
+        );
+        if (dup) {
+            warnEl.textContent = `⚠️ Peringatan: NIK/NIDN sudah terdaftar pada mentor ${dup.nama_mentor}!`;
+            warnEl.classList.remove('hidden');
+            inputEl.classList.add('border-rose-500', 'bg-rose-50');
+            return true;
+        } else {
+            warnEl.classList.add('hidden');
+            warnEl.textContent = '';
+            inputEl.classList.remove('border-rose-500', 'bg-rose-50');
+            return false;
+        }
+    }
+
     // 1. AUTO-MOUNT KE BODY & PENGUNCI ENTER KEY GLOBAL
     document.addEventListener('DOMContentLoaded', () => {
         ['modalDetailMentor', 'modalCreateTrainer', 'modalEditTrainer', 'modalImportMentor', 'modalDeleteConfirmation'].forEach(id => {
@@ -24,7 +84,23 @@
                 }
             });
 
-            form.addEventListener('submit', function() {
+            form.addEventListener('submit', function(e) {
+                if (form.id === 'formEditTrainer') {
+                    const nidnVal = document.getElementById('edit_nidn')?.value || '';
+                    if (checkDuplicateNidnEdit(nidnVal)) {
+                        e.preventDefault();
+                        document.getElementById('edit_nidn')?.focus();
+                        return false;
+                    }
+                } else {
+                    const nidnVal = document.getElementById('create_nidn')?.value || '';
+                    if (checkDuplicateNidnCreate(nidnVal)) {
+                        e.preventDefault();
+                        document.getElementById('create_nidn')?.focus();
+                        return false;
+                    }
+                }
+
                 const btn = form.querySelector('button[type="submit"]');
                 if (btn) {
                     btn.disabled = true;
@@ -147,7 +223,8 @@
 
             const waLink = document.getElementById('detail_mentor_wa_link');
             if (clean) {
-                waLink.href = 'https://wa.me/' + clean;
+                const msg = encodeURIComponent('Halo ' + (data.nama_mentor || '') + ', ');
+                waLink.href = 'https://wa.me/' + clean + '?text=' + msg;
                 waLink.style.pointerEvents = 'auto';
             } else {
                 waLink.href = '#';
@@ -219,10 +296,12 @@
         const modal = document.getElementById('modalEditTrainer');
         if (!form || !modal) return;
 
+        window.CURRENT_EDIT_MENTOR_ID = data.id || null;
         form.action = updateUrl;
         
         if (document.getElementById('edit_nama_mentor')) document.getElementById('edit_nama_mentor').value = data.nama_mentor || '';
         if (document.getElementById('edit_nidn')) document.getElementById('edit_nidn').value = data.nidn || '';
+        checkDuplicateNidnEdit('');
         if (document.getElementById('edit_email')) document.getElementById('edit_email').value = data.email || '';
 
         let tempatLahir = data.tempat_lahir || '';
@@ -296,6 +375,7 @@
             modal.classList.remove('hidden');
             const form = modal.querySelector('form');
             if (form) form.reset();
+            checkDuplicateNidnCreate('');
         }
     }
 

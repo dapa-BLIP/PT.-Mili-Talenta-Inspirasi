@@ -76,10 +76,14 @@
                     <select id="programDropdownFilter" onchange="applyFilters()" class="w-full px-2 py-1.5 bg-white border border-slate-200 text-[9.5px] sm:text-[10px] font-black uppercase tracking-wider text-slate-700 rounded-xs cursor-pointer focus:outline-none focus:border-slate-800 shadow-2xs">
                         <option value="ALL">SEMUA PROGRAM PELATIHAN</option>
                         @php
-                            $uniquePrograms = collect($trainers ?? [])->pluck('program_pelatihan')->unique()->filter();
+                            $uniquePrograms = collect($programs ?? [])
+                                ->filter()
+                                ->map(fn($p) => strtoupper(trim((string)$p)))
+                                ->unique()
+                                ->values();
                         @endphp
                         @foreach ($uniquePrograms as $prog)
-                            <option value="{{ strtoupper($prog) }}">{{ strtoupper($prog) }}</option>
+                            <option value="{{ $prog }}">{{ $prog }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -156,7 +160,7 @@
 
                         <td class="px-4 py-2.5 align-middle" onclick="event.stopPropagation()">
                             @if(!empty($t->kontak))
-                                <a href="https://wa.me/{{ $waNumber }}" target="_blank" title="Hubungi via WhatsApp ({{ $t->kontak }})" class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xs transition-colors">
+                                <a href="https://wa.me/{{ $waNumber }}?text={{ rawurlencode('Halo ' . $t->nama_mentor . ', ') }}" target="_blank" rel="noopener noreferrer" title="Kirim Pesan WhatsApp ke {{ $t->nama_mentor }} ({{ $t->kontak }})" class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xs transition-colors">
                                     <svg class="w-3 h-3 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 012.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.45 0-2.87-.38-4.12-1.1l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 01-1.26-4.43c0-4.54 3.7-8.24 8.24-8.24zm4.52 11.66c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.98-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.01-1.24-.74-.66-1.25-1.48-1.39-1.73-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.43.13-.15.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.49-.4-.42-.56-.43h-.47c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.77 2.71 4.3 3.8 2.53 1.09 2.53.73 2.99.69.46-.04 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.1-.23-.17-.48-.29z"/>
                                     </svg>

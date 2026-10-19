@@ -85,7 +85,7 @@
 
             <div class="bg-white p-3 sm:p-3.5 rounded-xs border border-slate-200 shadow-xs flex items-center justify-between">
                 <div>
-                    <p class="text-[9px] sm:text-[9git statuspx] font-black uppercase tracking-widest text-slate-400">Total Kelas Pelatihan</p>
+                    <p class="text-[9px] sm:text-[9px] font-black uppercase tracking-widest text-slate-400">Total Kelas Pelatihan</p>
                     <p class="text-lg sm:text-xl font-black text-slate-800 mt-0.5 font-mono">{{ count($pelatihans ?? []) }}</p>
                 </div>
                 <div class="p-2 bg-sky-50 text-[#22a0f6] rounded-xs border border-sky-100 shrink-0">

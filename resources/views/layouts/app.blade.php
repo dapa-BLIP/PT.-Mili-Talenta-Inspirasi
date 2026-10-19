@@ -136,7 +136,12 @@
                         <p class="text-[7.5px] sm:text-[8px] font-bold text-[#22a0f6] uppercase tracking-widest italic mt-0.5">Administrator</p>
                     </div>
                 </div>
-                <button @click="openLogout = true" class="w-full py-1.5 sm:py-2 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white rounded-xs transition-all duration-200 text-[8.5px] sm:text-[9px] font-black uppercase tracking-[0.2em] cursor-pointer">
+                <button type="button" 
+                        @click="openLogout = true" 
+                        class="w-full py-1.5 sm:py-2 bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white border border-transparent hover:border-white rounded-xs transition-all duration-200 text-[8.5px] sm:text-[9px] font-black uppercase tracking-[0.2em] cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs group">
+                    <svg class="w-3.5 h-3.5 text-rose-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
                     Sign Out
                 </button>
             </div>
@@ -190,27 +195,89 @@
     </div>
 
     <!-- ===================================================================== -->
-    <!-- 4. MODAL LOGOUT (OVERLAY BERSIH)                                      -->
+    <!-- 4. MODAL LOGOUT (OVERLAY BERSIH DENGAN HEADER NAVY PT MILI)           -->
     <!-- ===================================================================== -->
-    <div x-show="openLogout" x-cloak class="fixed inset-0 z-[300] flex items-center justify-center p-4 transition-all duration-300">
-        <div @click="openLogout = false" class="absolute inset-0 bg-slate-900/60"></div>
-        <div class="relative bg-white w-full max-w-[300px] p-5 rounded-xs shadow-2xl border border-slate-200">
-            <div class="text-center">
-                <div class="w-10 h-10 bg-rose-50 text-rose-500 rounded-xs flex items-center justify-center mx-auto mb-3 border border-rose-100">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+    <div x-show="openLogout" 
+         x-cloak 
+         class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 select-none overflow-y-auto">
+        
+        <!-- Backdrop Statis Blur -->
+        <div @click="openLogout = false" 
+             x-show="openLogout"
+             x-transition:enter="transition-opacity ease-out duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-in duration-150"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs"></div>
+
+        <!-- Modal Dialog Box (Landscape & Zero White Borders) -->
+        <div x-show="openLogout"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95"
+             class="relative bg-white w-full rounded-xs shadow-2xl overflow-hidden z-10 flex flex-col my-auto mx-4 border-none"
+             style="max-width: 540px;">
+            
+            <!-- Header Navy PT Mili (Clean, Flat, Borderless) -->
+            <div class="px-5 py-3.5 bg-[#1e293b] flex items-center justify-between shrink-0 text-white">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-2 h-2 rounded-full bg-rose-500 ring-4 ring-rose-500/20 shrink-0"></span>
+                    <span class="text-xs font-black uppercase tracking-wider text-white">Konfirmasi Keluar Sesi</span>
                 </div>
-                <h3 class="text-xs font-black text-slate-800 uppercase tracking-tighter">Konfirmasi Keluar</h3>
-                <p class="text-[9.5px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">Apakah Anda yakin ingin mengakhiri sesi?</p>
+                <button type="button" 
+                        @click="openLogout = false" 
+                        class="text-slate-400 hover:text-white rounded-xs p-1 text-lg font-bold leading-none cursor-pointer transition-colors bg-transparent border-none"
+                        title="Tutup">
+                    &times;
+                </button>
             </div>
-            <div class="mt-5 flex gap-2">
-                <button @click="openLogout = false" class="flex-1 px-3 py-1.5 border border-slate-200 text-slate-500 text-[8.5px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all rounded-xs cursor-pointer">Batal</button>
-                <form method="POST" action="{{ route('logout') }}" class="flex-1">
-                    @csrf
-                    <button type="submit" class="w-full px-3 py-1.5 bg-rose-500 text-white text-[8.5px] font-black uppercase tracking-widest hover:bg-rose-600 transition-all rounded-xs shadow-xs cursor-pointer border-none">
-                        Logout
+
+            <!-- Body Landscape: Horizontal Flow -->
+            <div class="p-5 sm:p-6 bg-white space-y-5">
+                <div class="flex items-start gap-4">
+                    <!-- Icon Badge Exit (Clean, No Harsh Borders) -->
+                    <div class="w-11 h-11 rounded-xs bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013 3v1"/>
+                        </svg>
+                    </div>
+
+                    <!-- Keterangan Pesan Landscape -->
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-xs sm:text-[13px] font-black text-slate-800 uppercase tracking-tight">
+                            Yakin ingin mengakhiri sesi kerja Anda?
+                        </h4>
+                        <p class="text-[11px] text-slate-500 leading-relaxed mt-1">
+                            Sesi login untuk <strong class="text-slate-700 font-black uppercase">{{ Auth::user()?->name ?? 'SUPER ADMIN' }}</strong> <span class="font-mono text-[10px] text-slate-400">({{ Auth::user()?->email ?? 'admin@gmail.com' }})</span> akan diakhiri. Pastikan seluruh perubahan data telah tersimpan sebelum keluar.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Footer Action Buttons: Kanan Bawah (Standard Landscape Dialog) -->
+                <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+                    <button type="button" 
+                            @click="openLogout = false" 
+                            class="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-black uppercase tracking-wider rounded-xs transition-colors cursor-pointer border-none">
+                        Batal
                     </button>
-                </form>
+                    <form method="POST" action="{{ route('logout') }}" class="inline m-0">
+                        @csrf
+                        <button type="submit" 
+                                class="px-6 py-2 bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-black uppercase tracking-wider rounded-xs shadow-xs transition-colors cursor-pointer border-none flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013 3v1"/>
+                            </svg>
+                            Logout
+                        </button>
+                    </form>
+                </div>
             </div>
+
         </div>
     </div>
 

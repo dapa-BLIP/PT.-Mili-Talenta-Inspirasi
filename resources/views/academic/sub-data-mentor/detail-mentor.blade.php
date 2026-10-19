@@ -48,7 +48,7 @@
 
                         <div class="bg-white border border-slate-200 p-2.5 rounded-xs shadow-2xs flex flex-col justify-between">
                             <span class="text-[8px] font-black text-slate-400 uppercase tracking-wider">Kontak WhatsApp</span>
-                            <a id="detail_mentor_wa_link" href="#" target="_blank" class="inline-flex items-center gap-1.5 font-bold text-emerald-600 font-mono mt-0.5 hover:underline">
+                            <a id="detail_mentor_wa_link" href="#" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="Kirim Pesan WhatsApp" class="inline-flex items-center gap-1.5 font-bold text-emerald-600 font-mono mt-0.5 hover:underline">
                                 <span id="detail_mentor_kontak">-</span>
                             </a>
                         </div>

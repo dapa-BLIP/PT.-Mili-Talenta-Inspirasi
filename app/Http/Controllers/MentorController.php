@@ -18,9 +18,23 @@ class MentorController extends Controller
     {
         $trainers = Trainer::latest()->get();
 
+        // Sinkronisasi format kontak lama (yang masih memakai '-' atau '08...') agar seragam menggunakan '+62' tanpa '-'
+        foreach ($trainers as $t) {
+            if (!empty($t->kontak)) {
+                $normalized = $this->formatNomorTelepon($t->kontak);
+                if ($normalized && $t->kontak !== $normalized) {
+                    $t->update(['kontak' => $normalized]);
+                    $t->kontak = $normalized;
+                }
+            }
+        }
+
         $kategoriPrograms = KategoriPelatihan::orderBy('nama_kategori', 'asc')->pluck('nama_kategori')->toArray();
         $pelatihanPrograms = Pelatihan::whereNotNull('jenis_pelatihan')->where('jenis_pelatihan', '!=', '')->distinct()->pluck('jenis_pelatihan')->toArray();
-        $programs = array_values(array_unique(array_filter(array_merge($kategoriPrograms, $pelatihanPrograms))));
+        $programs = array_values(array_unique(array_filter(array_map(
+            fn($p) => strtoupper(trim((string) $p)),
+            array_merge($kategoriPrograms, $pelatihanPrograms)
+        ))));
         sort($programs);
 
         return view('academic.mentor', compact('trainers', 'programs'));
@@ -28,6 +42,17 @@ class MentorController extends Controller
 
     public function store(Request $request)
     {
+        $nidnInput = $request->filled('nidn') ? preg_replace('/[^0-9]/', '', (string) $request->nidn) : null;
+        $request->merge([
+            'nidn'  => $nidnInput !== '' ? $nidnInput : null,
+            'email' => $request->filled('email') ? strtolower(trim((string) $request->email)) : null,
+        ]);
+
+        $existingByNidn = $request->nidn ? Trainer::where('nidn', $request->nidn)->first() : null;
+        $nidnUniqueMsg = $existingByNidn
+            ? "Peringatan: NIK / NIDN [{$request->nidn}] sudah terdaftar atas nama mentor '{$existingByNidn->nama_mentor}'! Gunakan NIK / NIDN yang berbeda."
+            : "Peringatan: NIK / NIDN [{$request->nidn}] sudah terdaftar pada mentor lain di sistem!";
+
         $request->validate([
             'nama_mentor'       => 'required|string|max:255',
             'nidn'              => 'nullable|numeric|digits_between:8,16|unique:trainers,nidn',
@@ -37,29 +62,38 @@ class MentorController extends Controller
             'kontak'            => [
                 'required',
                 function ($attribute, $value, $fail) {
-                    $digits = preg_replace('/[^0-9]/', '', (string)$value);
-                    if (str_starts_with($digits, '62')) {
-                        $digits = '0' . substr($digits, 2);
+                    $digits = preg_replace('/[^0-9]/', '', (string) $value);
+                    $localDigits = preg_replace('/^(0|62)/', '', $digits);
+                    if (!preg_match('/^8[0-9]{8,12}$/', $localDigits)) {
+                        $fail('Nomor WhatsApp harus berupa nomor seluler yang valid (contoh: +6281234567890 atau 081234567890, 10-15 digit).');
+                        return;
                     }
-                    if (!preg_match('/^08[1-9][0-9]{7,10}$/', $digits)) {
-                        $fail('Nomor WhatsApp harus tepat 10 sampai 13 digit angka seluler yang valid (contoh: 0812-3456-7890).');
+                    $formatted = '+62' . $localDigits;
+                    $existingKontak = Trainer::where('kontak', $formatted)->first();
+                    if ($existingKontak) {
+                        $fail("Peringatan: Nomor WhatsApp [{$formatted}] sudah terdaftar atas nama mentor '{$existingKontak->nama_mentor}'! Gunakan nomor telepon yang berbeda.");
                     }
                 },
             ],
             'program_pelatihan' => 'required|string',
             'foto'              => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ], [
+            'nidn.unique'         => $nidnUniqueMsg,
+            'nidn.digits_between' => 'Peringatan: NIK / NIDN harus terdiri dari 8 sampai 16 digit angka.',
+            'nidn.numeric'        => 'Peringatan: NIK / NIDN hanya boleh berisi angka.',
+            'email.unique'        => "Peringatan: Email [{$request->email}] sudah terdaftar pada mentor lain di sistem!",
         ]);
 
-        $ttl = ucwords(strtolower(trim((string)$request->tempat_lahir))) . ', ' . date('d-m-Y', strtotime($request->tanggal_lahir));
+        $ttl = ucwords(strtolower(trim((string) $request->tempat_lahir))) . ', ' . date('d-m-Y', strtotime($request->tanggal_lahir));
         $kontakFormatted = $this->formatNomorTelepon($request->kontak);
 
         $data = [
-            'nama_mentor'       => strtoupper(trim((string)$request->nama_mentor)),
+            'nama_mentor'       => strtoupper(trim((string) $request->nama_mentor)),
             'nidn'              => $request->nidn,
             'ttl'               => $ttl,
             'email'             => $request->email,
             'kontak'            => $kontakFormatted,
-            'program_pelatihan' => $request->program_pelatihan,
+            'program_pelatihan' => strtoupper(trim((string) $request->program_pelatihan)),
             'status'            => 'AKTIF',
         ];
 
@@ -75,6 +109,19 @@ class MentorController extends Controller
     {
         $trainer = Trainer::findOrFail($id);
 
+        $nidnInput = $request->filled('nidn') ? preg_replace('/[^0-9]/', '', (string) $request->nidn) : null;
+        $request->merge([
+            'nidn'  => $nidnInput !== '' ? $nidnInput : null,
+            'email' => $request->filled('email') ? strtolower(trim((string) $request->email)) : null,
+        ]);
+
+        $existingByNidn = $request->nidn
+            ? Trainer::where('nidn', $request->nidn)->where('id', '!=', $id)->first()
+            : null;
+        $nidnUniqueMsg = $existingByNidn
+            ? "Peringatan: NIK / NIDN [{$request->nidn}] sudah terdaftar atas nama mentor '{$existingByNidn->nama_mentor}'! Gunakan NIK / NIDN yang berbeda."
+            : "Peringatan: NIK / NIDN [{$request->nidn}] sudah terdaftar pada mentor lain di sistem!";
+
         $request->validate([
             'nama_mentor'       => 'required|string|max:255',
             'nidn'              => 'nullable|numeric|digits_between:8,16|unique:trainers,nidn,' . $id,
@@ -83,26 +130,35 @@ class MentorController extends Controller
             'email'             => 'nullable|email|unique:trainers,email,' . $id,
             'kontak'            => [
                 'nullable',
-                function ($attribute, $value, $fail) {
+                function ($attribute, $value, $fail) use ($id) {
                     if (!$value) return;
-                    $digits = preg_replace('/[^0-9]/', '', (string)$value);
-                    if (str_starts_with($digits, '62')) {
-                        $digits = '0' . substr($digits, 2);
+                    $digits = preg_replace('/[^0-9]/', '', (string) $value);
+                    $localDigits = preg_replace('/^(0|62)/', '', $digits);
+                    if (!preg_match('/^8[0-9]{8,12}$/', $localDigits)) {
+                        $fail('Nomor WhatsApp harus berupa nomor seluler yang valid (contoh: +6281234567890 atau 081234567890, 10-15 digit).');
+                        return;
                     }
-                    if (!preg_match('/^08[1-9][0-9]{7,10}$/', $digits)) {
-                        $fail('Nomor WhatsApp harus tepat 10 sampai 13 digit angka seluler yang valid (contoh: 0812-3456-7890).');
+                    $formatted = '+62' . $localDigits;
+                    $existingKontak = Trainer::where('kontak', $formatted)->where('id', '!=', $id)->first();
+                    if ($existingKontak) {
+                        $fail("Peringatan: Nomor WhatsApp [{$formatted}] sudah terdaftar atas nama mentor '{$existingKontak->nama_mentor}'! Gunakan nomor telepon yang berbeda.");
                     }
                 },
             ],
             'program_pelatihan' => 'required|string',
             'status'            => 'required|in:AKTIF,PENDING,NON-AKTIF',
             'foto'              => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ], [
+            'nidn.unique'         => $nidnUniqueMsg,
+            'nidn.digits_between' => 'Peringatan: NIK / NIDN harus terdiri dari 8 sampai 16 digit angka.',
+            'nidn.numeric'        => 'Peringatan: NIK / NIDN hanya boleh berisi angka.',
+            'email.unique'        => "Peringatan: Email [{$request->email}] sudah terdaftar pada mentor lain di sistem!",
         ]);
 
         if ($request->filled('tempat_lahir') && $request->filled('tanggal_lahir')) {
-            $ttl = ucwords(strtolower(trim((string)$request->tempat_lahir))) . ', ' . date('d-m-Y', strtotime($request->tanggal_lahir));
+            $ttl = ucwords(strtolower(trim((string) $request->tempat_lahir))) . ', ' . date('d-m-Y', strtotime($request->tanggal_lahir));
         } elseif ($request->filled('tempat_lahir')) {
-            $ttl = ucwords(strtolower(trim((string)$request->tempat_lahir)));
+            $ttl = ucwords(strtolower(trim((string) $request->tempat_lahir)));
         } else {
             $ttl = $trainer->ttl;
         }
@@ -112,12 +168,12 @@ class MentorController extends Controller
             : $trainer->kontak;
 
         $data = [
-            'nama_mentor'       => strtoupper(trim((string)$request->nama_mentor)),
+            'nama_mentor'       => strtoupper(trim((string) $request->nama_mentor)),
             'nidn'              => $request->nidn,
             'ttl'               => $ttl,
             'email'             => $request->email,
             'kontak'            => $kontakFormatted,
-            'program_pelatihan' => $request->program_pelatihan,
+            'program_pelatihan' => strtoupper(trim((string) $request->program_pelatihan)),
             'status'            => $request->status,
         ];
 
@@ -170,22 +226,12 @@ class MentorController extends Controller
     {
         if (!$nomor) return null;
 
-        $digits = preg_replace('/[^0-9]/', '', (string)$nomor);
-
-        if (str_starts_with($digits, '62')) {
-            $digits = '0' . substr($digits, 2);
-        } elseif (!str_starts_with($digits, '0') && strlen($digits) > 0) {
-            $digits = '0' . $digits;
+        $digits = preg_replace('/[^0-9]/', '', (string) $nomor);
+        if ($digits === '') {
+            return null;
         }
 
-        $len = strlen($digits);
-
-        if ($len === 10 || $len === 11) {
-            return substr($digits, 0, 4) . '-' . substr($digits, 4, 3) . '-' . substr($digits, 7);
-        } elseif ($len === 12 || $len === 13) {
-            return substr($digits, 0, 4) . '-' . substr($digits, 4, 4) . '-' . substr($digits, 8);
-        }
-
-        return $digits;
+        $localDigits = preg_replace('/^(0|62)/', '', $digits);
+        return '+62' . $localDigits;
     }
 }

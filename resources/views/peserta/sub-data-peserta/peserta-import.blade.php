@@ -29,7 +29,7 @@
                     </p>
                 </div>
                 <div class="shrink-0">
-                    <a href="{{ route('peserta.export') }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[9.5px] font-black uppercase tracking-wider rounded-xs transition shadow-2xs cursor-pointer whitespace-nowrap">
+                    <a href="{{ route('peserta.template') }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[9.5px] font-black uppercase tracking-wider rounded-xs transition shadow-2xs cursor-pointer whitespace-nowrap">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         <span>Unduh Template .XLSX</span>
                     </a>

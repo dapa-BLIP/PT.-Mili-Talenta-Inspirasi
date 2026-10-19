@@ -37,6 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // 3. PESERTA (ROOT RESOURCE)
     Route::get('peserta/export', [PesertaController::class, 'export'])->name('peserta.export');
+    Route::get('peserta/template', [PesertaController::class, 'template'])->name('peserta.template');
     Route::post('peserta/import', [PesertaController::class, 'import'])->name('peserta.import');
     Route::patch('peserta/{id}/status', [PesertaController::class, 'updateStatus'])->name('peserta.updateStatus');
     Route::resource('peserta', PesertaController::class);
